@@ -14,84 +14,84 @@ import chasky.ai_gatherer.feature.concept.ResposeDTO.ConceptResponseDTO;
 
 @Configuration
 public class AiConfig {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
-    private final String API_URL = "https://api.openai.com/v1/responses";
-    private final String system = "You are a university teacher who scientificly explains concepts and how they depend on adjacent concepts.";
-    private final String model = "gpt-4o";
-    private final Float temperature = 0f;
-    private final String format = """
-            {
-                            "format": {
-                              "type": "json_schema",
-                              "name": "concept_response",
-                              "schema": {
+  private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
+  private final String API_URL = "https://api.openai.com/v1/responses";
+  private final String system = "You are a university teacher who scientificly explains concepts and how they depend on adjacent concepts.";
+  private final String model = "gpt-4o";
+  private final Float temperature = 0f;
+  private final String format = """
+      {
+                      "format": {
+                        "type": "json_schema",
+                        "name": "concept_response",
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "concepts": {
+                              "type": "array",
+                              "items": {
                                 "type": "object",
                                 "properties": {
-                                  "concepts": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "object",
-                                      "properties": {
-                                        "concept": { "type": "string" },
-                                        "explanation": { "type": "string" }
-                                      },
-                                      "required": ["concept", "explanation"],
-                                      "additionalProperties": false
-                                    }
-                                  }
+                                  "concept": { "type": "string" },
+                                  "explanation": { "type": "string" }
                                 },
-                                "required": ["concepts"],
+                                "required": ["concept", "explanation"],
                                 "additionalProperties": false
                               }
-                    """;
-
-    public String contructRequestBody(String prompt) {
-        return String.format(
-                """
-                        {
-                          "model": "%s",
-                          "input": [
-                            {
-                              "role": "system",
-                              "content": "%s"
-                            },
-                            {
-                              "role": "user",
-                              "content": "%s"
                             }
-                          ],
-                          "temperature": %s,
-                          "text": %s,
-                              "strict": true
-                            }
-                          }
+                          },
+                          "required": ["concepts"],
+                          "additionalProperties": false
                         }
-                        """,
-                model, system, prompt, temperature, format);
-    }
+              """;
 
-    public HttpRequest constructRequest(String requestBody) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(API_URL))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + OPENAI_API_KEY)
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .timeout(java.time.Duration.ofSeconds(30))
-                .build();
-    }
+  public String contructRequestBody(String prompt) {
+    return String.format(
+        """
+            {
+              "model": "%s",
+              "input": [
+                {
+                  "role": "system",
+                  "content": "%s"
+                },
+                {
+                  "role": "user",
+                  "content": "%s"
+                }
+              ],
+              "temperature": %s,
+              "text": %s,
+                  "strict": true
+                }
+              }
+            }
+            """,
+        model, system, prompt, temperature, format);
+  }
 
-    public ConceptResponseDTO parseResponse(String responseBody) throws JsonMappingException, JsonProcessingException {
-        JsonNode root = objectMapper.readTree(responseBody);
+  public HttpRequest constructRequest(String requestBody) {
+    return HttpRequest.newBuilder()
+        .uri(URI.create(API_URL))
+        .header("Content-Type", "application/json")
+        .header("Authorization", "Bearer " + OPENAI_API_KEY)
+        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+        .timeout(java.time.Duration.ofSeconds(30))
+        .build();
+  }
 
-        String text = root.path("output")
-                .get(0)
-                .path("content")
-                .get(0)
-                .path("text")
-                .asText();
+  public ConceptResponseDTO parseResponse(String responseBody) throws JsonMappingException, JsonProcessingException {
+    JsonNode root = objectMapper.readTree(responseBody);
 
-        return objectMapper.readValue(text, ConceptResponseDTO.class);
-    }
+    String text = root.path("output")
+        .get(0)
+        .path("content")
+        .get(0)
+        .path("text")
+        .asText();
+
+    return objectMapper.readValue(text, ConceptResponseDTO.class);
+  }
 }

@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import chasky.ai_gatherer.feature.concept.ResposeDTO.ConceptResponseDTO;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 
 import java.io.IOException;
