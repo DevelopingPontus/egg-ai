@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import chasky.ai_gatherer.feature.category.dto.CategoryRequest;
 import chasky.ai_gatherer.feature.category.dto.CategoryResponse;
-import chasky.ai_gatherer.feature.node.dto.NodeRequest;
-import chasky.ai_gatherer.feature.node.dto.NodeResponse;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -25,5 +23,4 @@ public class CategoryController {
     public CategoryResponse postMethodName(CategoryRequest prompt) throws IOException, InterruptedException {
         return categoryService.promptAi(prompt.descriptionOfCategory());
     }
-
 }

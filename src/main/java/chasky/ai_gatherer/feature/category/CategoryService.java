@@ -3,10 +3,8 @@ package chasky.ai_gatherer.feature.category;
 import org.springframework.stereotype.Service;
 
 import chasky.ai_gatherer.feature.category.dto.CategoryResponse;
-import chasky.ai_gatherer.feature.node.dto.NodeResponse;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Service
 public class CategoryService {

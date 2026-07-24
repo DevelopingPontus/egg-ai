@@ -1,9 +1,11 @@
 package chasky.ai_gatherer.feature.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -13,28 +15,46 @@ public class Node {
     @EmbeddedId
     private NodeId id;
 
-    private List<String> topicsThisDependOn;
-    private List<String> topicsThisEnables;
+    @OneToMany
+    private List<Node> prerequisits;
+    // @OneToMany
+    // private List<Node> isPrerequisitTo;
     public Node() {
     }
-    public Node(String category, String topic, List<String> topicsThisDependOn, List<String> topicsThisEnables) {
-        this.id = new NodeId(category, topic);
-        this.topicsThisDependOn = topicsThisDependOn;
-        this.topicsThisEnables = topicsThisEnables;
+    
+    public Node(NodeId id) {
+        this.id = id;
     }
+
+    public Node(String category, String topic, List<Node> prerequisits) {
+        this.id = new NodeId(category, topic);
+        this.prerequisits = prerequisits;
+        // this.isPrerequisitTo = isPrerequisitTo;
+    }
+
     public NodeId getId() {
         return id;
     }
-    public List<String> getTopicsThisDependOn() {
-        return topicsThisDependOn;
+    public void setId(NodeId id) {
+        this.id = id;
     }
-    public void setTopicsThisDependOn(List<String> topicsThisDependOn) {
-        this.topicsThisDependOn = topicsThisDependOn;
+    public List<Node> getTopicsThisDependOn() {
+        return new ArrayList<>(prerequisits);
     }
-    public List<String> getTopicsThisEnables() {
-        return topicsThisEnables;
+    public void setTopicsThisDependOn(List<Node> prerequisits) {
+        this.prerequisits = prerequisits;
     }
-    public void setTopicsThisEnables(List<String> topicsThisEnables) {
-        this.topicsThisEnables = topicsThisEnables;
+    public List<Node> getPrerequisits() {
+        return prerequisits;
     }
+    public void setPrerequisits(List<Node> prerequisits) {
+        this.prerequisits = prerequisits;
+    }
+
+    // public List<Node> getTopicsThisEnables() {
+    //     return new ArrayList<>(isPrerequisitTo);
+    // }
+    // public void setTopicsThisEnables(List<Node> isPrerequisitTo) {
+    //     this.isPrerequisitTo = isPrerequisitTo;
+    // }
 }

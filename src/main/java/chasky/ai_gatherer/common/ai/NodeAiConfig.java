@@ -3,28 +3,34 @@ package chasky.ai_gatherer.common.ai;
 import java.net.URI;
 import java.net.http.HttpRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
+
+import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
 
 @Configuration
 public class NodeAiConfig {
+  private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
+
+  MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
+
+  private String format;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  JsonSchemaGenerator schemaGenerator = new JsonSchemaGenerator(objectMapper);
-  
-  private String format;
+
   private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
   private final String API_URL = "https://api.openai.com/v1/responses";
   private final String model = "gpt-4o";
-  
+  // private final String OPENAI_API_KEY = "not-needed";
+  // private final String API_URL = "http://127.0.0.1:1234/v1/responses";
+  // private final String model = "google/gemma-4-e4b";
+
   private String system = "";
   private Float temperature = 0f;
 
@@ -38,7 +44,7 @@ public class NodeAiConfig {
 
   public String constructRequestBody(String prompt, Class object) {
     if (format == null) {
-      format = generateFormat(object);
+      format = generator.generateSchema(object);
     }
     System.out.println(format);
 
@@ -50,13 +56,7 @@ public class NodeAiConfig {
                 { "role": "user", "content": "%s" }
                 ],
                 "temperature": %s,
-                "text": {
-                  "format": {
-                    "type": "json_schema",
-                    "name": "response",
-                    "schema": %s
-                  }
-                }
+                "text": %s
         }
                 """, model, system, prompt, temperature, format);
   }
@@ -85,23 +85,4 @@ public class NodeAiConfig {
     return objectMapper.readValue(text, responseType);
   }
 
-  private String generateFormat(Class object) {
-    try {
-      JsonSchema schema = schemaGenerator.generateSchema(object);
-
-      
-      ObjectNode schemaNode = objectMapper.valueToTree(schema);
-      ArrayNode required = schemaNode.putArray("required");
-      schemaNode.get("properties").fieldNames().forEachRemaining(required::add);
-
-      schemaNode.put("additionalProperties", false);
-
-      schemaNode.put("strict", true);
-
-
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(schemaNode);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to generate schema");
-    }
-  }
 }

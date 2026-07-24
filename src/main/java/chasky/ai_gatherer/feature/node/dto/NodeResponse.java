@@ -2,11 +2,13 @@ package chasky.ai_gatherer.feature.node.dto;
 
 import java.util.List;
 
+import chasky.ai_gatherer.feature.node.NodeId;
+
 public record NodeResponse(
                 String subject,
                 String topic,
-                List<String> topicsThisDependOn,
-                List<String> topicsThisEnables
-        ) {
+                List<NodeId> prerequisits,
+                // List<NodeId> isPrerequisitTo,
+                Boolean queryWasReasonable) {
 
 }

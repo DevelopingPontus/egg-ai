@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import chasky.ai_gatherer.feature.node.dto.NodeResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,15 +23,17 @@ public class NodeService {
         NodeResponse response = aiClient.promptAi(prompt);
         Optional<Node> node = nodeRepository.findById(new NodeId(response.subject(), response.topic()));
         if (node.isEmpty() || node == null) {
-            nodeRepository.save(toNode(response));
+            nodeRepository.saveAll(toNode(response));
         }
         return response;
     }
 
-    private Node toNode(NodeResponse response) {
-        return new Node(response.subject(),
-                response.topic(),
-                response.topicsThisDependOn(),
-                response.topicsThisEnables());
+    private List<Node> toNode(NodeResponse response) {
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(new Node(new NodeId(response.subject(), response.topic())));
+        for (NodeId nodeId : response.prerequisits()) {
+            nodes.add(new Node(nodeId));
+        }
+        return nodes;
     }
 }
