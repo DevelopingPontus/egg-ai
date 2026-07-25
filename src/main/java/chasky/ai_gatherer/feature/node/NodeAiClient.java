@@ -21,7 +21,7 @@ public class NodeAiClient {
 
     NodeAiConfig aiConfig = new NodeAiConfig(system, temperature);
 
-    private final Class object = NodeResponse.class;
+    private final Class<?> object = NodeResponse.class;
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(java.time.Duration.ofSeconds(10))

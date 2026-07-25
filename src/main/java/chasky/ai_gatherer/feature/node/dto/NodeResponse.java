@@ -8,7 +8,7 @@ public record NodeResponse(
                 String subject,
                 String topic,
                 List<NodeId> prerequisits,
-                // List<NodeId> isPrerequisitTo,
+                List<NodeId> isPrerequisitTo,
                 Boolean queryWasReasonable) {
 
 }
