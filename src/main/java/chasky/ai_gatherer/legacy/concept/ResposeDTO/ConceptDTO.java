@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.concept.ResposeDTO;
+package chasky.ai_gatherer.legacy.concept.ResposeDTO;
 
 import jakarta.validation.constraints.NotBlank;
 

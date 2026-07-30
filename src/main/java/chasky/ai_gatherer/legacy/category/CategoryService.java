@@ -1,8 +1,8 @@
-package chasky.ai_gatherer.feature.category;
+package chasky.ai_gatherer.legacy.category;
 
 import org.springframework.stereotype.Service;
 
-import chasky.ai_gatherer.feature.category.dto.CategoryResponse;
+import chasky.ai_gatherer.legacy.category.dto.CategoryResponse;
 
 import java.io.IOException;
 

@@ -42,7 +42,7 @@ public class NodeAiConfig {
     this.temperature = temperature;
   }
 
-  public String constructRequestBody(String prompt, Class object) {
+  public String constructRequestBody(String prompt, Class<?> object) {
     if (format == null) {
       format = generator.generateSchema(object);
     }

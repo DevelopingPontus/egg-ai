@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.category.dto;
+package chasky.ai_gatherer.legacy.category.dto;
 
 import jakarta.validation.constraints.Size;
 

@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.category;
+package chasky.ai_gatherer.legacy.category;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;
 
 import chasky.ai_gatherer.common.ai.NodeAiConfig;
-import chasky.ai_gatherer.feature.category.dto.CategoryResponse;
+import chasky.ai_gatherer.legacy.category.dto.CategoryResponse;
 import jakarta.annotation.PostConstruct;
 
 @Component

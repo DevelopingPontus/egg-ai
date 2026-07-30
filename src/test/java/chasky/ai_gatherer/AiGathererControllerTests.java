@@ -15,6 +15,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import chasky.ai_gatherer.legacy.concept.AisClient;
+import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptDTO;
+import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -23,9 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.io.IOException;
 import java.util.List;
 
-import chasky.ai_gatherer.feature.concept.ResposeDTO.ConceptDTO;
-import chasky.ai_gatherer.feature.concept.ResposeDTO.ConceptResponseDTO;
-import chasky.ai_gatherer.feature.concept.AisClient;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;

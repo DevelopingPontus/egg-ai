@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.concept;
+package chasky.ai_gatherer.legacy.concept;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Component;
 
-import chasky.ai_gatherer.feature.concept.ResposeDTO.ConceptResponseDTO;
+import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
 import jakarta.annotation.PostConstruct;
 
 @Component
