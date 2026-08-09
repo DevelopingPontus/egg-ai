@@ -7,7 +7,6 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class NodeId implements Serializable {
-    private String dataType;
     private String category;
     private String topic;
 
@@ -15,21 +14,13 @@ public class NodeId implements Serializable {
     public NodeId() {
     }
 
-    public NodeId(String dataType, String category, String topic) {
-        this.dataType = dataType;
+    public NodeId(String category, String topic) {
         this.category = category;
         this.topic = topic;
     }
 
     // Getters and setters
 
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
 
     public String getCategory() {
         return category;
@@ -55,13 +46,13 @@ public class NodeId implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         NodeId nodeId = (NodeId) o;
-        return Objects.equals(dataType, nodeId.dataType) &&
+        return
                 Objects.equals(category, nodeId.category) &&
                 Objects.equals(topic, nodeId.topic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataType, category, topic);
+        return Objects.hash( category, topic);
     }
 }

@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;
 
 import chasky.ai_gatherer.common.ai.NodeAiConfig;
-import chasky.ai_gatherer.feature.node.dto.NodeRelationsResponse;
+import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
 import jakarta.annotation.PostConstruct;
 
 @Component
@@ -19,7 +19,8 @@ public class NodeAiClient {
     private String system = "You are a scientist that defines a topic by category, what topics of categories this depends on and what topics of categories this enables.";
     private float temperature = 0f;
 
-    NodeAiConfig aiConfig = new NodeAiConfig(system, temperature);
+    // NodeAiConfig aiConfig = new NodeAiConfig(system, temperature);
+    NodeAiConfig aiConfig = new NodeAiConfig("", temperature);
 
     private final Class<?> object = NodeRelationsResponse.class;
 

@@ -3,17 +3,21 @@ package chasky.ai_gatherer.feature.node.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import net.bytebuddy.agent.builder.AgentBuilder.PoolStrategy.Eager;
 
 @Entity
 public class Node {
     @EmbeddedId
     private NodeId id;
 
-    @OneToMany(mappedBy = "sourceNode", cascade = CascadeType.ALL)
+    @OneToMany
     private List<NodeRelation> relations;
 
     public Node() {
@@ -38,11 +42,11 @@ public class Node {
         this.id = id;
     }
 
-    public List<NodeRelation> getRelations() {
+    public List<NodeRelation> getrelations() {
         return relations;
     }
 
-    public void setRelations(List<NodeRelation> relations) {
+    public void setrelations(List<NodeRelation> relations) {
         this.relations = relations;
     }
 
@@ -50,7 +54,7 @@ public class Node {
         this.relations.remove(relation);
     }
 
-    public void removeRelations(List<NodeRelation> relations) {
+    public void removerelations(List<NodeRelation> relations) {
         this.relations.removeAll(relations);
     }
 
@@ -58,7 +62,7 @@ public class Node {
     this.relations.add(relation);
     }
 
-    public void addRelations(List<NodeRelation> relations) {
+    public void addrelations(List<NodeRelation> relations) {
     this.relations.addAll(relations);
     }
 

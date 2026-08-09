@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Relationship Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+
+        /* Query Form Styles */
+        .query-form {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+            flex: 0 1 auto;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+            flex: 0 0 auto;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .form-hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        /* Error State */
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .error-message button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .error-message button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Card */
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-left: 6px solid #667eea;
+        }
+
+        .main-card-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .main-card-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .relations-section {
+            margin-bottom: 40px;
+        }
+
+        .relations-title {
+            color: white;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .relations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .relation-group {
+            margin-bottom: 30px;
+        }
+
+        .relation-type {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .relation-type.depends_on {
+            background: rgba(255, 107, 107, 0.3);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .relation-type.enables {
+            background: rgba(107, 214, 214, 0.3);
+            border: 1px solid rgba(107, 214, 214, 0.5);
+        }
+
+        .node-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-top: 4px solid #667eea;
+        }
+
+        .node-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .node-card.depends_on {
+            border-top-color: #ff6b6b;
+        }
+
+        .node-card.enables {
+            border-top-color: #51cf66;
+        }
+
+        .node-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .node-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .node-meta-item {
+            font-size: 0.9em;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .node-meta-label {
+            font-weight: 600;
+            color: #333;
+            margin-right: 8px;
+            min-width: 70px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            color: #666;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        .query-status {
+            text-align: center;
+            color: white;
+            font-size: 0.95em;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .query-status.valid {
+            color: #51cf66;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .relations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-card {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Node Relationship Viewer</h1>
+            <p>Explore connected nodes and their dependencies</p>
+        </div>
+
+        <!-- Query Form -->
+        <div class="query-form">
+            <h2 style="margin-bottom: 20px; color: #333;">Search Nodes</h2>
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="queryInput" 
+                    placeholder="Describe your topic (e.g., 'How do I make my Java Spring project work as a P2P application')"
+                />
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-submit" id="submitBtn">🔍 Search</button>
+                <button class="btn btn-clear" id="clearBtn">Clear</button>
+            </div>
+            <div class="form-hint">💡 Enter a description of the topic you want to explore</div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorContainer"></div>
+
+        <!-- Content -->
+        <div id="content"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/v1/nodes';
+        const queryInput = document.getElementById('queryInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const content = document.getElementById('content');
+        const errorContainer = document.getElementById('errorContainer');
+
+        submitBtn.addEventListener('click', handleQuery);
+        clearBtn.addEventListener('click', handleClear);
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleQuery();
+        });
+
+        async function handleQuery() {
+            const query = queryInput.value.trim();
+            
+            if (!query) {
+                showError('Please enter a search query');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            showLoading();
+            hideError();
+
+            try {
+                const response = await fetch(`${API_URL}?descriptionOfTopic=${encodeURIComponent(query)}`, {
+                    method: 'POST',
+                    headers: {
+                        'accept': '*/*',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                renderContent(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Failed to fetch data: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        function handleClear() {
+            queryInput.value = '';
+            content.innerHTML = '';
+            hideError();
+            showEmptyState();
+        }
+
+        function showLoading() {
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Searching for nodes...</div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.style.display='none'">✕</button>
+            `;
+            errorContainer.innerHTML = '';
+            errorContainer.appendChild(errorDiv);
+        }
+
+        function hideError() {
+            errorContainer.innerHTML = '';
+        }
+
+        function showEmptyState() {
+            content.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <div class="empty-state-text">Enter a search query to get started</div>
+                </div>
+            `;
+        }
+
+        function renderContent(data) {
+            content.innerHTML = '';
+
+            // Main card
+            const mainCard = document.createElement('div');
+            mainCard.className = 'main-card';
+            mainCard.innerHTML = `
+                <div class="main-card-title">${data.nodeId.topic}</div>
+                <div class="main-card-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Data Type</div>
+                        <div class="detail-value">${data.nodeId.dataType}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Category</div>
+                        <div class="detail-value">${data.nodeId.category}</div>
+                    </div>
+                </div>
+            `;
+            content.appendChild(mainCard);
+
+            // Group relations by type
+            const groupedRelations = {};
+            data.relations.forEach(relation => {
+                if (!groupedRelations[relation.relationType]) {
+                    groupedRelations[relation.relationType] = [];
+                }
+                groupedRelations[relation.relationType].push(relation.relatedNodeId);
+            });
+
+
+            // Render relations grouped by type
+            Object.entries(groupedRelations).forEach(([relationType, nodes]) => {
+                const section = document.createElement('div');
+                section.className = 'relation-group';
+                
+                const title = document.createElement('div');
+                title.className = 'relations-title';
+                title.textContent = `${relationType.replace(/_/g, ' ').toUpperCase()} (${nodes.length})`;
+                section.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'relations-grid';
+
+                nodes.forEach(node => {
+                    const card = document.createElement('div');
+                    card.className = `node-card ${relationType}`;
+                    card.innerHTML = `
+                        <div class="node-title">${node.topic}</div>
+                        <div class="node-meta">
+                            <div class="node-meta-item">
+                                <span class="node-meta-label">Type:</span>
+                                <span>${node.dataType}</span>
+                            </div>
+                            <div class="node-meta-item">
+                                <span class="node-meta-label">Category:</span>
+                                <span>${node.category}</span>
+                            </div>
+                        </div>
+                        <div class="badge">${relationType.replace(/_/g, ' ')}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                section.appendChild(grid);
+                content.appendChild(section);
+            });
+
+            // Query status
+            const status = document.createElement('div');
+            status.className = `query-status ${data.queryWasReasonable ? 'valid' : ''}`;
+            status.textContent = `Query Status: ${data.queryWasReasonable ? '✓ Valid' : '✗ Invalid'}`;
+            content.appendChild(status);
+        }
+
+        renderContent();
+    </script>
+</body>
+</html>

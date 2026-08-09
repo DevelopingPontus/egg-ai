@@ -6,5 +6,4 @@ import chasky.ai_gatherer.feature.node.entity.Node;
 import chasky.ai_gatherer.feature.node.entity.NodeId;
 
 public interface NodeRepository extends JpaRepository<Node, NodeId> {
-    
 }
