@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
 
 @Configuration
-public class NodeAiConfig {
+public class LmStudioAiConfig {
   private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
 
   MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
@@ -24,20 +24,20 @@ public class NodeAiConfig {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
-  private final String API_URL = "https://api.openai.com/v1/responses";
-  private final String model = "gpt-4o";
-  // private final String OPENAI_API_KEY = "not-needed";
-  // private final String API_URL = "http://127.0.0.1:1234/v1/responses";
-  // private final String model = "google/gemma-4-e4b";
+  // private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
+  // private final String API_URL = "https://api.openai.com/v1/responses";
+  // private final String model = "gpt-4o";
+  private final String OPENAI_API_KEY = "not-needed";
+  private final String API_URL = "http://127.0.0.1:1234/v1/responses";
+  private final String model = "google/gemma-4-e4b";
 
   private String system = "";
   private Float temperature = 0f;
 
-  public NodeAiConfig() {
+  public LmStudioAiConfig() {
   }
 
-  public NodeAiConfig(String system, Float temperature) {
+  public LmStudioAiConfig(String system, Float temperature) {
     this.system = system;
     this.temperature = temperature;
   }

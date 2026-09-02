@@ -1,11 +1,10 @@
 package chasky.ai_gatherer.feature.node.relation.dto;
 
 import chasky.ai_gatherer.feature.node.dto.NodeDTO;
-import chasky.ai_gatherer.feature.node.entity.NodeId;
 
 public record NodeRelationDTO(
-                NodeDTO parentNodeDto,
+                NodeDTO nodeDTO,
                 String relationType,
-                NodeDTO chilNodeDto
+                NodeDTO relatedNodeDTO
         ) {
 }

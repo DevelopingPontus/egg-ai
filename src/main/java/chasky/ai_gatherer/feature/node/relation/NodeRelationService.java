@@ -1,68 +1,107 @@
 package chasky.ai_gatherer.feature.node.relation;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import chasky.ai_gatherer.feature.node.NodeRepository;
 import chasky.ai_gatherer.feature.node.dto.NodeDTO;
 import chasky.ai_gatherer.feature.node.entity.Node;
 import chasky.ai_gatherer.feature.node.entity.NodeId;
 import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
-import chasky.ai_gatherer.feature.node.relation.dto.TreeNodeDTO;
 import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class NodeRelationService {
     private final NodeRelationRepository nodeRelationRepository;
+    private final NodeRepository nodeRepository;
 
-    public NodeRelationService(NodeRelationRepository nodeRelationRepository) {
+    public NodeRelationService(NodeRelationRepository nodeRelationRepository, NodeRepository nodeRepository) {
         this.nodeRelationRepository = nodeRelationRepository;
+        this.nodeRepository = nodeRepository;
     }
 
-    // public Map<NodeDTO, Map<NodeDTO, ?>> getNodeRelationsTreeOfDepth(int depth,
-    // Node node) {
-    // Map<NodeDTO, Object> nodeRelations = new LinkedHashMap<>();
-    // List<NodeRelation> relations = nodeRelationRepository.findByParentNode(node);
+    public List<NodeRelationDTO> getNodeRelations(int depth, NodeId nodeId) {
+        if (nodeRepository.findById(nodeId).isEmpty()) {
+            throw new EntityNotFoundException("Could not find Node by NodeId");
+        }
+        Node node = nodeRepository.findById(nodeId).get();
+        Set<NodeId> visited = new HashSet<>();
+        Set<NodeRelation> allRelations = new HashSet<>();
 
-    // for (int i = 0; i < depth; i++) {
-    // Set<Node> childNodes = new HashSet<>();
-    // for (NodeRelation relation : relations) {
-    // Node parentNode = relation.getParentNode();
-    // Node childDto = relation.getChildNode();
+        // collectRelations(node, depth, visited, allRelations);
+        collectRelations(node, visited, allRelations);
+        System.out.println("All linked relations collected by node in tree " + allRelations.size());
 
-    // }
-    // }
-    // }
-
-    public TreeNodeDTO getNodeRelationsTreeOfDepth(int depth, Node node) {
-        return buildNodeTree(node, depth, new HashSet<>());
+        return allRelations.stream()
+                .map(this::toDto)
+                .toList();
     }
 
-    private TreeNodeDTO buildNodeTree(Node node, int depth, Set<NodeId> visited) {
-        if (visited.contains(node.getId()) || depth <= 0) {
-            return new TreeNodeDTO(convertToDTO(node), List.of());
+    // private void collectRelations(Node node, int depth, Set<NodeId> visited, Set<NodeRelation> allRelations) {
+    //     if (depth <= 0 || visited.contains(node.getId())) {
+    //         return;
+    //     }
+
+    //     visited.add(node.getId());
+
+    //     // Get direct relations
+    //     List<NodeRelation> parentRelations = nodeRelationRepository.findByNode(node);
+    //     List<NodeRelation> childRelations = nodeRelationRepository.findByRelatedNode(node);
+
+    //     allRelations.addAll(childRelations);
+    //     allRelations.addAll(parentRelations);
+
+    //     // Recursively fetch next level
+    //     for (NodeRelation relation : childRelations) {
+    //         collectRelations(relation.getnode(), depth - 1, visited, allRelations);
+    //     }
+    //     for (NodeRelation relation : parentRelations) {
+    //         collectRelations(relation.getrelatedNode(), depth - 1, visited, allRelations);
+    //     }
+    // }
+private void collectRelations(
+        Node start,
+        Set<NodeId> visited,
+        Set<NodeRelation> allRelations) {
+
+    Queue<Node> queue = new ArrayDeque<>();
+    queue.add(start);
+
+    while (!queue.isEmpty()) {
+        Node node = queue.poll();
+
+        if (!visited.add(node.getId())) {
+            continue;
         }
 
-        visited.add(node.getId());
-        List<TreeNodeDTO> children = new ArrayList<>();
+        List<NodeRelation> outgoing =
+                nodeRelationRepository.findByNode(node);
 
-        List<NodeRelation> relations = nodeRelationRepository.findByParentNode(node);
-        for (NodeRelation relation : relations) {
-            TreeNodeDTO childTree = buildNodeTree(relation.getChildNode(), depth - 1, new HashSet<>(visited));
-            children.add(childTree);
+        List<NodeRelation> incoming =
+                nodeRelationRepository.findByRelatedNode(node);
+
+        for (NodeRelation relation : outgoing) {
+            if (allRelations.add(relation)) {
+                queue.add(relation.getrelatedNode());
+            }
         }
 
-        return new TreeNodeDTO(convertToDTO(node), children);
+        for (NodeRelation relation : incoming) {
+            if (allRelations.add(relation)) {
+                queue.add(relation.getnode());
+            }
+        }
     }
-
-    private NodeDTO convertToDTO(Node node) {
-        return new NodeDTO(node.getId()); // Adjust based on your DTO
-    }
+}
 
     public List<NodeRelationDTO> toDtos(List<NodeRelation> relations) {
         List<NodeRelationDTO> relationDtos = new ArrayList<>();
@@ -73,10 +112,11 @@ public class NodeRelationService {
     }
 
     public NodeRelationDTO toDto(NodeRelation nodeRelation) {
-        NodeDTO parentNodeDTO = new NodeDTO(nodeRelation.getParentNode().getId());
-        NodeDTO childNodeDTO = new NodeDTO(nodeRelation.getChildNode().getId());
-        return new NodeRelationDTO(parentNodeDTO, nodeRelation.getRelationType(),
-                childNodeDTO);
+        NodeDTO nodeDto = new NodeDTO(nodeRelation.getnode().getId());
+        NodeDTO relatedNodeDTO = new NodeDTO(nodeRelation.getrelatedNode().getId());
+        return new NodeRelationDTO(
+                nodeDto, nodeRelation.getRelationType(),
+                relatedNodeDTO);
     }
 
 }

@@ -1,563 +1,598 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Node Relationship Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: #f5f5f5;
+      }
+
+      .container {
+        display: flex;
+        height: 100vh;
+      }
+
+      .sidebar {
+        width: 380px;
+        background: white;
+        border-right: 1px solid #ddd;
+        padding: 20px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .sidebar h2 {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 18px;
+      }
+
+      .section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .section:last-child {
+        border-bottom: none;
+      }
+
+      .section h3 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #888;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .input-group {
+        margin-bottom: 12px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #555;
+        font-size: 13px;
+      }
+
+      .input-group input,
+      .input-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: "Monaco", "Courier New", monospace;
+        font-size: 12px;
+        transition: border-color 0.2s;
+      }
+
+      .input-group input:focus,
+      .input-group textarea:focus {
+        outline: none;
+        border-color: #0066cc;
+      }
+
+      .input-group textarea {
+        height: 120px;
+        resize: vertical;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+        font-size: 13px;
+      }
+
+      button:hover:not(:disabled) {
+        background: #0052a3;
+      }
+
+      button:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .button-group button {
+        flex: 1;
+      }
+
+      .node-info {
+        margin-top: 15px;
+        padding: 12px;
+        background: #f9f9f9;
+        border-radius: 4px;
+        border-left: 4px solid #0066cc;
+      }
+
+      .node-info h4 {
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 13px;
+      }
+
+      .node-info p {
+        margin: 4px 0;
+        color: #666;
+        font-size: 12px;
+        word-break: break-word;
+      }
+
+      .expand-btn {
+        background: #4caf50;
+        margin-top: 10px;
+        width: 100%;
+      }
+
+      .expand-btn:hover:not(:disabled) {
+        background: #45a049;
+      }
+
+      .relation-tag {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #e8f0ff;
+        color: #0066cc;
+        border-radius: 3px;
+        font-size: 11px;
+        margin-top: 5px;
+        margin-right: 5px;
+      }
+
+      .network {
+        flex: 1;
+        background: white;
+      }
+
+      .message {
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 12px;
+      }
+
+      .error {
+        color: #d32f2f;
+        background: #ffebee;
+        border-left: 3px solid #d32f2f;
+      }
+
+      .success {
+        color: #388e3c;
+        background: #e8f5e9;
+        border-left: 3px solid #388e3c;
+      }
+
+      .loading {
+        color: #1976d2;
+        background: #e3f2fd;
+        border-left: 3px solid #1976d2;
+      }
+
+      .spinner {
+        display: inline-block;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
         }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
+        to {
+          transform: rotate(360deg);
         }
-        
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 380px;
-            background: white;
-            border-right: 1px solid #ddd;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .sidebar h2 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 18px;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .section:last-child {
-            border-bottom: none;
-        }
-        
-        .section h3 {
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #888;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-        
-        .input-group {
-            margin-bottom: 12px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #555;
-            font-size: 13px;
-        }
-        
-        .input-group input,
-        .input-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 12px;
-            transition: border-color 0.2s;
-        }
-        
-        .input-group input:focus,
-        .input-group textarea:focus {
-            outline: none;
-            border-color: #0066cc;
-        }
-        
-        .input-group textarea {
-            height: 120px;
-            resize: vertical;
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-            font-size: 13px;
-        }
-        
-        button:hover:not(:disabled) {
-            background: #0052a3;
-        }
-        
-        button:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-        
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .button-group button {
-            flex: 1;
-        }
-        
-        .node-info {
-            margin-top: 15px;
-            padding: 12px;
-            background: #f9f9f9;
-            border-radius: 4px;
-            border-left: 4px solid #0066cc;
-        }
-        
-        .node-info h4 {
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 13px;
-        }
-        
-        .node-info p {
-            margin: 4px 0;
-            color: #666;
-            font-size: 12px;
-            word-break: break-word;
-        }
-        
-        .expand-btn {
-            background: #4caf50;
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .expand-btn:hover:not(:disabled) {
-            background: #45a049;
-        }
-        
-        .relation-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            background: #e8f0ff;
-            color: #0066cc;
-            border-radius: 3px;
-            font-size: 11px;
-            margin-top: 5px;
-            margin-right: 5px;
-        }
-        
-        .network {
-            flex: 1;
-            background: white;
-        }
-        
-        .message {
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-        
-        .error {
-            color: #d32f2f;
-            background: #ffebee;
-            border-left: 3px solid #d32f2f;
-        }
-        
-        .success {
-            color: #388e3c;
-            background: #e8f5e9;
-            border-left: 3px solid #388e3c;
-        }
-        
-        .loading {
-            color: #1976d2;
-            background: #e3f2fd;
-            border-left: 3px solid #1976d2;
-        }
-        
-        .spinner {
-            display: inline-block;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .badge {
-            display: inline-block;
-            background: #f0f0f0;
-            color: #666;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 11px;
-            margin-left: 5px;
-        }
+      }
+
+      .badge {
+        display: inline-block;
+        background: #f0f0f0;
+        color: #666;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        margin-left: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="sidebar">
-            <h2>📊 Node Visualizer</h2>
-            
-            <div class="section">
-                <h3>🔗 API Request</h3>
-                
-                <div class="input-group">
+      <div class="sidebar">
+        <h2>📊 Node Visualizer</h2>
+
+        <div class="section">
+          <h3>🔗 API Request</h3>
+
+          <!-- <div class="input-group">
                     <label>API Endpoint:</label>
                     <input type="text" id="apiEndpoint" value="http://localhost:8080" placeholder="http://localhost:8080">
-                </div>
-                
-                <div class="input-group">
-                    <label>Topic Description:</label>
-                    <input type="text" id="topicInput" placeholder="e.g., plc for robots" value="plc for robots">
-                </div>
-                
-                <button onclick="fetchFromAPI()">🚀 Fetch Data</button>
-                
-                <div id="apiStatus"></div>
-            </div>
-            
-            <div class="section">
-                <h3>📋 Manual JSON Input</h3>
-                
-                <div class="input-group">
-                    <label>Or paste JSON directly:</label>
-                    <textarea id="jsonInput" placeholder="Paste the JSON response here..."></textarea>
-                </div>
-                
-                <button onclick="loadGraph()">📈 Load Graph</button>
-                
-                <div id="status"></div>
-            </div>
-            
-            <div id="nodeDetails"></div>
+                </div> -->
+
+          <div class="input-group">
+            <label>Topic Description:</label>
+            <input
+              type="text"
+              id="topicInput"
+              placeholder="e.g., plc for robots"
+              value="plc for robots"
+            />
+          </div>
+
+          <button onclick="fetchFromAPI()">🚀 Fetch Data</button>
+
+          <div id="apiStatus"></div>
         </div>
-        
-        <div id="network" class="network"></div>
+
+        <div class="section">
+          <h3>📋 Manual JSON Input</h3>
+
+          <div class="input-group">
+            <label>Or paste JSON directly:</label>
+            <textarea
+              id="jsonInput"
+              placeholder="Paste the JSON response here..."
+            ></textarea>
+          </div>
+
+          <button onclick="loadGraph()">📈 Load Graph</button>
+
+          <div id="status"></div>
+        </div>
+
+        <div id="nodeDetails"></div>
+      </div>
+
+      <div id="network" class="network"></div>
     </div>
 
     <script>
-        let network = null;
-        let nodes = null;
-        let edges = null;
-        let selectedNode = null;
-        let selectedNodeData = null;
-        let fetchedNodes = new Set();
-        const apiEndpoint = 'http://localhost:8080';
+      let network = null;
+      let nodes = null;
+      let edges = null;
+      let selectedNode = null;
+      let selectedNodeData = null;
+      let fetchedNodes = new Set();
+      const apiEndpoint = "http://localhost:8080";
 
-        async function fetchFromAPI() {
-            const endpoint = document.getElementById('apiEndpoint').value.trim();
-            const topic = document.getElementById('topicInput').value.trim();
-            const statusDiv = document.getElementById('apiStatus');
-            const jsonInput = document.getElementById('jsonInput');
-            
-            statusDiv.innerHTML = '';
-            
-            if (!endpoint || !topic) {
-                statusDiv.innerHTML = '<div class="message error">❌ Please enter both endpoint and topic</div>';
-                return;
-            }
-            
-            statusDiv.innerHTML = '<div class="message loading"><span class="spinner">⏳</span> Fetching data...</div>';
-            
-            try {
-                const url = `${endpoint}/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(topic)}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                // Populate textarea with response
-                jsonInput.value = JSON.stringify(data, null, 2);
-                
-                // Reset graph
-                fetchedNodes.clear();
-                
-                // Build graph
-                buildGraph(data);
-                
-                statusDiv.innerHTML = '<div class="message success">✅ Data fetched successfully!</div>';
-            } catch (error) {
-                statusDiv.innerHTML = `<div class="message error">❌ Error: ${error.message}</div>`;
-                console.error('API Error:', error);
-            }
+      async function fetchFromAPI() {
+        // const endpoint = document.getElementById('apiEndpoint').value.trim();
+        const topic = document.getElementById("topicInput").value.trim();
+        const statusDiv = document.getElementById("apiStatus");
+        const jsonInput = document.getElementById("jsonInput");
+
+        statusDiv.innerHTML = "";
+
+        if (!topic) {
+          statusDiv.innerHTML =
+            '<div class="message error">❌ Please enter topic</div>';
+          return;
         }
 
-        function loadGraph() {
-            const jsonInput = document.getElementById('jsonInput').value.trim();
-            const statusDiv = document.getElementById('status');
-            const detailsDiv = document.getElementById('nodeDetails');
-            
-            statusDiv.innerHTML = '';
-            detailsDiv.innerHTML = '';
-            
-            if (!jsonInput) {
-                statusDiv.innerHTML = '<div class="message error">❌ Please paste JSON data</div>';
-                return;
-            }
-            
-            try {
-                const data = JSON.parse(jsonInput);
-                fetchedNodes.clear();
-                buildGraph(data);
-                statusDiv.innerHTML = '<div class="message success">✅ Graph loaded!</div>';
-            } catch (error) {
-                statusDiv.innerHTML = `<div class="message error">❌ Invalid JSON: ${error.message}</div>`;
-            }
+        statusDiv.innerHTML =
+          '<div class="message loading"><span class="spinner">⏳</span> Fetching data...</div>';
+
+        try {
+          const url = `http://localhost:8080/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(topic)}`;
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              Accept: "*/*",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          // Populate textarea with response
+          jsonInput.value = JSON.stringify(data, null, 2);
+
+          // Reset graph
+          fetchedNodes.clear();
+
+          // Main node
+          const mainNode = data[0].nodeDTO.nodeId;
+          console.log(mainNode);
+
+          // Build graph
+          buildGraph(data, mainNode);
+
+          statusDiv.innerHTML =
+            '<div class="message success">✅ Data fetched successfully!</div>';
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="message error">❌ Error: ${error.message}</div>`;
+          console.error("API Error:", error);
+        }
+      }
+
+      function loadGraph() {
+        const jsonInput = document.getElementById("jsonInput").value.trim();
+        const statusDiv = document.getElementById("status");
+        const detailsDiv = document.getElementById("nodeDetails");
+
+        statusDiv.innerHTML = "";
+        detailsDiv.innerHTML = "";
+
+        if (!jsonInput) {
+          statusDiv.innerHTML =
+            '<div class="message error">❌ Please paste JSON data</div>';
+          return;
         }
 
-        function buildGraph(data) {
-            if (!nodes) {
-                nodes = new vis.DataSet();
-                edges = new vis.DataSet();
-            }
-            
-            // Main node
-            const mainNode = data.nodeId;
-            const mainNodeId = JSON.stringify(mainNode);
-            
-            nodes.add({
-                id: mainNodeId,
-                label: mainNode.topic,
-                title: `${mainNode.category}\n${mainNode.topic}`,
-                color: {background: '#0066cc', border: '#004499'},
-                font: {color: 'white', size: 14, bold: true},
-                size: 30
-            });
-            
-            // Track this node as fetched
-            fetchedNodes.add(mainNode.topic);
-            
-            // Related nodes and edges
-            if (data.relations && Array.isArray(data.relations)) {
-                data.relations.forEach((relation) => {
-                    const relatedNode = relation.relatedNodeId;
-                    const nodeId = JSON.stringify(relatedNode);
-                    const relationType = relation.relationType;
-                    
-                    // Only add if not already in graph
-                    if (!nodes.get(nodeId)) {
-                        let color = relationType === 'depends_on' ? '#ff9800' : '#4caf50';
-                        
-                        nodes.add({
-                            id: nodeId,
-                            label: relatedNode.topic,
-                            title: `${relatedNode.category}\n${relatedNode.topic}`,
-                            color: {background: color, border: color},
-                            font: {color: 'white', size: 12},
-                            size: 25
-                        });
-                    }
-                    
-                    // Only add edge if not already exists
-                    const edgeId = `${mainNodeId}-${JSON.stringify(relatedNode)}`;
-                    if (!edges.get(edgeId)) {
-                        let color = relationType === 'depends_on' ? '#ff9800' : '#4caf50';
-                        
-                        edges.add({
-                            id: edgeId,
-                            from: mainNodeId,
-                            to: JSON.stringify(relatedNode),
-                            label: relationType,
-                            font: {size: 12, align: 'middle'},
-                            color: {color: color, highlight: '#333'},
-                            arrows: 'to'
-                        });
-                    }
-                });
-            }
-            
-            const container = document.getElementById('network');
-            const options = {
-                physics: {
-                    enabled: true,
-                    stabilization: {iterations: 200},
-                    barnesHut: {gravity: -5000, centralGravity: 0.3, springLength: 200}
-                },
-                interaction: {
-                    hover: true
-                }
-            };
-            
-            if (!network) {
-                const graphData = {nodes: nodes, edges: edges};
-                network = new vis.Network(container, graphData, options);
-                
-                // Node click listener
-                network.on('click', (params) => {
-                    if (params.nodes.length > 0) {
-                        showNodeDetails(params.nodes[0]);
-                    }
-                });
-            } else {
-                // Trigger physics to re-layout
-                network.physics.stabilize(200);
-            }
-            
-            // Show main node details on load
-            showNodeDetails(mainNodeId);
+        try {
+          const data = JSON.parse(jsonInput);
+          // Main node
+          const mainNode = data[0].nodeDTO.nodeId;
+          console.log(mainNode);
+          fetchedNodes.clear();
+          buildGraph(data, mainNode);
+          statusDiv.innerHTML =
+            '<div class="message success">✅ Graph loaded!</div>';
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="message error">❌ Invalid JSON: ${error.message}</div>`;
+        }
+      }
+
+      function buildGraph(data, mainNode) {
+        if (!nodes) {
+          nodes = new vis.DataSet();
+          edges = new vis.DataSet();
         }
 
-        function showNodeDetails(nodeId) {
-            const node = nodes.get(nodeId);
-            const detailsDiv = document.getElementById('nodeDetails');
-            
-            if (!node) {
-                detailsDiv.innerHTML = '';
-                return;
-            }
-            
-            selectedNode = nodeId;
-            
-            // Parse node data
-            let nodeData = null;
-            try {
-                nodeData = JSON.parse(nodeId);
-            } catch (e) {}
-            
-            let html = '<div class="node-info">';
-            html += `<h4>📌 Selected Node</h4>`;
-            html += `<p><strong>${node.label}</strong></p>`;
-            
-            if (nodeData) {
-                html += `<p><strong>Data Type:</strong> ${nodeData.dataType}</p>`;
-                html += `<p><strong>Category:</strong> ${nodeData.category}</p>`;
-            }
-            
-            // Check if already fetched
-            const isExpanded = fetchedNodes.has(node.label);
-            
-            html += `<button class="expand-btn" onclick="expandNode('${node.label.replace(/'/g, "\\'")}', '${nodeData ? nodeData.topic.replace(/'/g, "\\'") : ''}')" ${isExpanded ? 'disabled' : ''}>`;
-            html += isExpanded ? '✅ Already Expanded' : '🌳 Expand Relations';
-            html += '</button>';
-            
-            html += '</div>';
-            detailsDiv.innerHTML = html;
-        }
+        const mainNodeId = JSON.stringify(mainNode);
 
-        async function expandNode(nodeLabel, nodeTopic) {
-            const detailsDiv = document.getElementById('nodeDetails');
-            const btn = detailsDiv.querySelector('.expand-btn');
-            
-            if (!btn) return;
-            
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner">⏳</span> Fetching...';
-            
-            try {
-                const endpoint = document.getElementById('apiEndpoint').value.trim();
-                const url = `${endpoint}/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(nodeTopic || nodeLabel)}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                // Build graph with new data
-                buildGraph(data);
-                
-                // Mark as fetched
-                fetchedNodes.add(nodeLabel);
-                
-                // Update button
-                btn.disabled = true;
-                btn.innerHTML = '✅ Already Expanded';
-                
-            } catch (error) {
-                btn.innerHTML = '❌ Failed - Try Again';
-                btn.disabled = false;
-                console.error('Expand Error:', error);
-                
-                // Revert after 2 seconds
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                }, 2000);
-            }
-        }
-
-        // Pre-fill with default example
-        window.addEventListener('load', () => {
-            const defaultJson = {
-                "nodeId": {
-                    "dataType": "technology",
-                    "category": "automation",
-                    "topic": "PLC for robots"
-                },
-                "relations": [
-                    {
-                        "relationType": "depends_on",
-                        "relatedNodeId": {
-                            "dataType": "technology",
-                            "category": "hardware",
-                            "topic": "robotic sensors"
-                        }
-                    },
-                    {
-                        "relationType": "depends_on",
-                        "relatedNodeId": {
-                            "dataType": "technology",
-                            "category": "software",
-                            "topic": "robot programming languages"
-                        }
-                    },
-                    {
-                        "relationType": "enables",
-                        "relatedNodeId": {
-                            "dataType": "technology",
-                            "category": "manufacturing",
-                            "topic": "smart factories"
-                        }
-                    }
-                ],
-                "queryWasReasonable": true
-            };
-            
-            document.getElementById('jsonInput').value = JSON.stringify(defaultJson, null, 2);
-            loadGraph();
+        nodes.add({
+          id: mainNodeId,
+          label: mainNode.topic,
+          title: `${mainNode.category}\n${mainNode.topic}`,
+          color: { background: "#0066cc", border: "#004499" },
+          font: { color: "white", size: 14, bold: true },
+          size: 30,
         });
+
+        // Track this node as fetched
+        fetchedNodes.add(mainNode.topic);
+
+        // Related nodes and edges
+        if (data.relations && Array.isArray(data.relations)) {
+          data.relations.forEach((relation) => {
+            const relatedNode = relation.relatedNodeId;
+            const nodeId = JSON.stringify(relatedNode);
+            const relationType = relation.relationType;
+
+            // Only add if not already in graph
+            if (!nodes.get(nodeId)) {
+              let color = relationType === "depends_on" ? "#ff9800" : "#4caf50";
+
+              nodes.add({
+                id: nodeId,
+                label: relatedNode.topic,
+                title: `${relatedNode.category}\n${relatedNode.topic}`,
+                color: { background: color, border: color },
+                font: { color: "white", size: 12 },
+                size: 25,
+              });
+            }
+
+            // Only add edge if not already exists
+            const edgeId = `${mainNodeId}-${JSON.stringify(relatedNode)}`;
+            if (!edges.get(edgeId)) {
+              let color = relationType === "depends_on" ? "#ff9800" : "#4caf50";
+
+              edges.add({
+                id: edgeId,
+                from: mainNodeId,
+                to: JSON.stringify(relatedNode),
+                label: relationType,
+                font: { size: 12, align: "middle" },
+                color: { color: color, highlight: "#333" },
+                arrows: "to",
+              });
+            }
+          });
+        }
+
+        const container = document.getElementById("network");
+        const options = {
+          physics: {
+            enabled: true,
+            stabilization: { iterations: 200 },
+            barnesHut: {
+              gravity: -5000,
+              centralGravity: 0.3,
+              springLength: 200,
+            },
+          },
+          interaction: {
+            hover: true,
+          },
+        };
+
+        if (!network) {
+          const graphData = { nodes: nodes, edges: edges };
+          network = new vis.Network(container, graphData, options);
+
+          // Node click listener
+          network.on("click", (params) => {
+            if (params.nodes.length > 0) {
+              showNodeDetails(params.nodes[0]);
+            }
+          });
+        } else {
+          // Trigger physics to re-layout
+          network.physics.stabilize(200);
+        }
+
+        // Show main node details on load
+        showNodeDetails(mainNodeId);
+      }
+
+      function showNodeDetails(nodeId) {
+        const node = nodes.get(nodeId);
+        const detailsDiv = document.getElementById("nodeDetails");
+
+        if (!node) {
+          detailsDiv.innerHTML = "";
+          return;
+        }
+
+        selectedNode = nodeId;
+
+        // Parse node data
+        let nodeData = null;
+        try {
+          nodeData = JSON.parse(nodeId);
+        } catch (e) {}
+
+        let html = '<div class="node-info">';
+        html += `<h4>📌 Selected Node</h4>`;
+        html += `<p><strong>${node.label}</strong></p>`;
+
+        if (nodeData) {
+          html += `<p><strong>Data Type:</strong> ${nodeData.dataType}</p>`;
+          html += `<p><strong>Category:</strong> ${nodeData.category}</p>`;
+        }
+
+        // Check if already fetched
+        const isExpanded = fetchedNodes.has(node.label);
+
+        html += `<button class="expand-btn" onclick="expandNode('${node.label.replace(/'/g, "\\'")}', '${nodeData ? nodeData.topic.replace(/'/g, "\\'") : ""}')" ${isExpanded ? "disabled" : ""}>`;
+        html += isExpanded ? "✅ Already Expanded" : "🌳 Expand Relations";
+        html += "</button>";
+
+        html += "</div>";
+        detailsDiv.innerHTML = html;
+      }
+
+      async function expandNode(nodeLabel, nodeTopic) {
+        const detailsDiv = document.getElementById("nodeDetails");
+        const btn = detailsDiv.querySelector(".expand-btn");
+
+        if (!btn) return;
+
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner">⏳</span> Fetching...';
+
+        try {
+          const endpoint = document.getElementById("apiEndpoint").value.trim();
+          const url = `${endpoint}/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(nodeTopic || nodeLabel)}`;
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              Accept: "*/*",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          // Build graph with new data
+          buildGraph(data);
+
+          // Mark as fetched
+          fetchedNodes.add(nodeLabel);
+
+          // Update button
+          btn.disabled = true;
+          btn.innerHTML = "✅ Already Expanded";
+        } catch (error) {
+          btn.innerHTML = "❌ Failed - Try Again";
+          btn.disabled = false;
+          console.error("Expand Error:", error);
+
+          // Revert after 2 seconds
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+          }, 2000);
+        }
+      }
+
+      // Pre-fill with default example
+      window.addEventListener("load", () => {
+        const defaultJson = {
+          nodeId: {
+            dataType: "technology",
+            category: "automation",
+            topic: "PLC for robots",
+          },
+          relations: [
+            {
+              relationType: "depends_on",
+              relatedNodeId: {
+                dataType: "technology",
+                category: "hardware",
+                topic: "robotic sensors",
+              },
+            },
+            {
+              relationType: "depends_on",
+              relatedNodeId: {
+                dataType: "technology",
+                category: "software",
+                topic: "robot programming languages",
+              },
+            },
+            {
+              relationType: "enables",
+              relatedNodeId: {
+                dataType: "technology",
+                category: "manufacturing",
+                topic: "smart factories",
+              },
+            },
+          ],
+          queryWasReasonable: true,
+        };
+
+        document.getElementById("jsonInput").value = JSON.stringify(
+          defaultJson,
+          null,
+          2,
+        );
+        loadGraph();
+      });
     </script>
-</body>
+  </body>
 </html>

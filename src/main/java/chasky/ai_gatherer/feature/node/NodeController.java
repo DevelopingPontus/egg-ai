@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import chasky.ai_gatherer.feature.node.dto.NodeDTO;
 import chasky.ai_gatherer.feature.node.entity.NodeId;
+import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
 import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
 import chasky.ai_gatherer.feature.node.request.NodeRequest;
 import jakarta.validation.Valid;
@@ -29,7 +30,7 @@ public class NodeController {
     }
 
     @PostMapping
-    public NodeRelationsResponse generateNodeWithRelations(@Valid NodeRequest prompt)
+    public List<NodeRelationDTO> generateNodeWithRelations(@Valid NodeRequest prompt)
             throws IOException, InterruptedException {
         return nodeService.generateNodeWithRelations(prompt);
     }

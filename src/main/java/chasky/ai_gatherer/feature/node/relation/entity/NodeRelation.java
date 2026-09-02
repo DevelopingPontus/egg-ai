@@ -12,26 +12,27 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"parent_node_topic", "child_node_topic", "parent_node_category", "child_node_category"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "node_topic", "related_node_topic", "node_category",
+        "related_node_category" }))
 public class NodeRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne()
-    private Node parentNode;
+    private Node node;
 
     @ManyToOne
-    private Node childNode;
+    private Node relatedNode;
 
     private String relationType;
- 
+
     public NodeRelation() {
     }
 
-    public NodeRelation(Node parentNode, String relationType, Node childNode) {
-        this.parentNode = parentNode;
-        this.childNode = childNode;
+    public NodeRelation(Node node, String relationType, Node relatedNode) {
+        this.node = node;
+        this.relatedNode = relatedNode;
         this.relationType = relationType;
     }
 
@@ -43,20 +44,20 @@ public class NodeRelation {
         this.id = id;
     }
 
-    public Node getParentNode() {
-        return parentNode;
+    public Node getnode() {
+        return node;
     }
 
-    public void setParentNode(Node parentNode) {
-        this.parentNode = parentNode;
+    public void setnode(Node node) {
+        this.node = node;
     }
 
-    public Node getChildNode() {
-        return childNode;
+    public Node getrelatedNode() {
+        return relatedNode;
     }
 
-    public void setChildNode(Node childNode) {
-        this.childNode = childNode;
+    public void setrelatedNode(Node relatedNode) {
+        this.relatedNode = relatedNode;
     }
 
     public String getRelationType() {
@@ -67,6 +68,4 @@ public class NodeRelation {
         this.relationType = relationType;
     }
 
-
-    
 }

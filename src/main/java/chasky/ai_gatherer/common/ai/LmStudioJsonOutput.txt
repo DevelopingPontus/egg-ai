@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "properties": {
+    "reasoning": {
+      "type": "string"
+    },
+    "webOfNodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nodeDTO": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string"
+                  },
+                  "topic": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "category",
+                  "topic"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "nodeId"
+            ],
+            "additionalProperties": false
+          },
+          "relationType": {
+            "type": "string"
+          },
+          "relatedNodeDTO": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string"
+                  },
+                  "topic": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "category",
+                  "topic"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "nodeId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "nodeDTO",
+          "relationType",
+          "relatedNodeDTO"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "queryWasReasonable": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "reasoning",
+    "webOfNodes",
+    "queryWasReasonable"
+  ],
+  "additionalProperties": false
+}

@@ -1,411 +1,252 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Frontend - Nodes</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
-            width: 100%;
-            padding: 30px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="url"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        input[type="url"]:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .response-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #eee;
-        }
-
-        .response-label {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .response-box {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #333;
-            max-height: 300px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-loading {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .url-preview {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-            word-break: break-all;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Nodes API Tester</h1>
-        <p class="subtitle">Test your /api/v1/nodes endpoint</p>
-
-        <form id="apiForm">
-            <div class="form-group">
-                <label for="method">HTTP Method</label>
-                <select id="method" required>
-                    <option value="GET">GET</option>
-                    <option value="POST" selected>POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                    <option value="PATCH">PATCH</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="baseUrl">Base URL</label>
-                <input type="text" id="baseUrl" value="http://localhost:8080" placeholder="http://localhost:8080" required>
-            </div>
-
-            <div class="form-group">
-                <label for="endpoint">Endpoint</label>
-                <input type="text" id="endpoint" value="/api/v1/nodes" placeholder="/api/v1/nodes" required>
-            </div>
-
-            <div class="form-group">
-                <label for="params">Query Parameters</label>
-                <textarea id="params" placeholder="descriptionOfTopic="></textarea>
-                <div class="url-preview" id="urlPreview"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="body">Request Body (JSON)</label>
-                <textarea id="body" placeholder='Leave empty for empty body'></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="headers">Headers (JSON)</label>
-                <textarea id="headers" placeholder='{"accept": "*/*"}'></textarea>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn-primary" id="sendBtn">Send Request</button>
-                <button type="button" class="btn-secondary" id="clearBtn">Clear</button>
-            </div>
-        </form>
-
-        <div class="response-section hidden" id="responseSection">
-            <div class="response-label">Response</div>
-            <div id="statusIndicator" class="status-indicator hidden"></div>
-            <div id="responseBox" class="response-box"></div>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node Relations Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <div>
+      <h1>Node Relations Graph</h1>
+      <input
+        type="text"
+        id="description"
+        placeholder="e.g., my cats are bored"
+      />
+      <button onclick="searchNodes()">Search</button>
+      <button onclick="clearGraph()">Clear</button>
+      <p><small>Double-click a node to explore its relations</small></p>
     </div>
 
+    <div id="loading" style="display: none">Loading...</div>
+    <div id="error" style="display: none; color: red"></div>
+
+    <div
+      id="network"
+      style="width: 100%; height: 600px; border: 1px solid #ccc"
+    ></div>
+
+    <div id="legend" style="padding: 20px"></div>
+
     <script>
-        const apiForm = document.getElementById('apiForm');
-        const methodSelect = document.getElementById('method');
-        const baseUrlInput = document.getElementById('baseUrl');
-        const endpointInput = document.getElementById('endpoint');
-        const paramsInput = document.getElementById('params');
-        const bodyInput = document.getElementById('body');
-        const headersInput = document.getElementById('headers');
-        const sendBtn = document.getElementById('sendBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const responseSection = document.getElementById('responseSection');
-        const responseBox = document.getElementById('responseBox');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const urlPreview = document.getElementById('urlPreview');
+      const API_URL = "http://localhost:8080/api/v1/nodes";
 
-        // Update URL preview
-        function updateUrlPreview() {
-            const baseUrl = baseUrlInput.value.trim();
-            const endpoint = endpointInput.value.trim();
-            const params = paramsInput.value.trim();
-            
-            let fullUrl = baseUrl + endpoint;
-            if (params) {
-                fullUrl += '?' + params;
-            }
-            
-            urlPreview.textContent = fullUrl;
+      const relationTypeColors = {
+        solution_for: "#667eea",
+        related_to: "#764ba2",
+        parent_of: "#f093fb",
+        child_of: "#4facfe",
+        similar_to: "#43e97b",
+        opposite_of: "#fa709a",
+        dependency_of: "#feca57",
+        causes: "#ff9ff3",
+        caused_by: "#54a0ff",
+      };
+
+      //   Vis-network components that handles the drawing of nodes
+      let network = null;
+      let nodes = null;
+      let edges = null;
+      let relationTypeStats = {};
+
+      function initGraph() {
+        if (!nodes) nodes = new vis.DataSet();
+        if (!edges) edges = new vis.DataSet();
+      }
+
+      function searchNodes() {
+        const description = document.getElementById("description").value.trim();
+
+        if (!description) {
+          showError("Please enter a description");
+          return;
         }
 
-        baseUrlInput.addEventListener('input', updateUrlPreview);
-        endpointInput.addEventListener('input', updateUrlPreview);
-        paramsInput.addEventListener('input', updateUrlPreview);
+        fetchAndAddNodes(description);
+      }
 
-        // Hide body input for GET and DELETE
-        methodSelect.addEventListener('change', () => {
-            const method = methodSelect.value;
-            bodyInput.parentElement.style.display = ['GET', 'DELETE'].includes(method) ? 'none' : 'block';
+      function fetchAndAddNodes(description) {
+        showLoading(true);
+        hideError();
+
+        const url = `${API_URL}?descriptionOfTopic=${encodeURIComponent(description)}`;
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
+          .then((data) => {
+            addToGraph(data);
+          })
+          .catch((error) => {
+            showError(`Error: ${error.message}`);
+            console.error(error);
+          })
+          .finally(() => showLoading(false));
+      }
+
+      function addToGraph(data) {
+        if (!Array.isArray(data) || data.length === 0) {
+          showError("No results found");
+          return;
+        }
+
+        initGraph();
+
+        // Process all nodeRelations
+        data.forEach((item) => {
+          const relationType = item.relationType || "unknown";
+          relationTypeStats[relationType] =
+            (relationTypeStats[relationType] || 0) + 1;
+
+          const node = item.nodeDTO?.nodeId;
+          const related = item.relatedNodeDTO?.nodeId;
+
+          // Add source node
+          if (node) {
+            const nodeId = `${node.category}::${node.topic}`;
+            if (!nodes.get(nodeId)) {
+              nodes.add({
+                id: nodeId,
+                label: node.topic || "Unknown",
+                title: `${node.topic}\nCategory: ${node.category}\n(Double-click to expand)`,
+                shape: "box",
+              });
+            }
+          }
+
+          // Add related node
+          if (related) {
+            const relatedId = `${related.category}::${related.topic}`;
+            if (!nodes.get(relatedId)) {
+              nodes.add({
+                id: relatedId,
+                label: related.topic || "Unknown",
+                title: `${related.topic}\nCategory: ${related.category}\n(Double-click to expand)`,
+                shape: "box",
+              });
+            }
+          }
+
+          // Add edge for this relation
+          if (node && related) {
+            const nodeId = `${node.category}::${node.topic}`;
+            const relatedId = `${related.category}::${related.topic}`;
+            const edgeId = `${nodeId}-${relationType}-${relatedId}`;
+
+            if (!edges.get(edgeId)) {
+              edges.add({
+                id: edgeId,
+                from: nodeId,
+                to: relatedId,
+                label: relationType,
+                title: relationType,
+                color: relationTypeColors[relationType] || "#999",
+                arrows: "to",
+              });
+            }
+          }
         });
 
-        // Send API request
-        apiForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        renderGraph();
+        updateLegend();
+      }
 
-            const method = methodSelect.value;
-            const baseUrl = baseUrlInput.value.trim();
-            const endpoint = endpointInput.value.trim();
-            const params = paramsInput.value.trim();
-            const bodyText = bodyInput.value.trim();
-            const headersText = headersInput.value.trim();
+      function renderGraph() {
+        const graphData = { nodes, edges };
+        const options = {
+          physics: {
+            enabled: true,
+            stabilization: { iterations: 200 },
+            barnesHut: {
+              gravitationalConstant: -26000,
+              centralGravity: 0.3,
+              springLength: 200,
+            },
+          },
+          layout: {
+            hierarchical: true,
+            avoidOverlap: 1.0,
+          },
+        };
 
-            // Build full URL
-            let url = baseUrl + endpoint;
-            if (params) {
-                url += '?' + params;
+        if (network) {
+          network.setData(graphData);
+        } else {
+          network = new vis.Network(
+            document.getElementById("network"),
+            graphData,
+            options,
+          );
+
+          // Listen for double-click to expand node relations
+          network.on("doubleClick", function (params) {
+            if (params.nodes.length > 0) {
+              const nodeId = params.nodes[0];
+              console.log(`Expanding relations for: ${nodeId}`);
+              fetchAndAddNodes(`Expand the tree node: ${nodeId}`);
             }
+          });
+        }
+      }
 
-            // Validate URL
-            if (!baseUrl || !endpoint) {
-                showError('Please enter base URL and endpoint');
-                return;
-            }
+      function updateLegend() {
+        const legend = document.getElementById("legend");
+        legend.innerHTML = "<h3>Relation Types:</h3>";
 
-            // Parse headers
-            let headers = {};
-            if (headersText) {
-                try {
-                    headers = JSON.parse(headersText);
-                } catch (err) {
-                    showError('Invalid JSON in headers');
-                    return;
-                }
-            }
-
-            // Parse body
-            let body = null;
-            if (bodyText && ['POST', 'PUT', 'PATCH'].includes(method)) {
-                try {
-                    body = JSON.stringify(JSON.parse(bodyText));
-                } catch (err) {
-                    // If not valid JSON, send as-is
-                    body = bodyText;
-                }
-            }
-
-            showLoading();
-
-            try {
-                const options = {
-                    method,
-                    headers,
-                };
-
-                if (body) {
-                    options.body = body;
-                }
-
-                const response = await fetch(url, options);
-                const contentType = response.headers.get('content-type');
-                let data;
-
-                if (contentType && contentType.includes('application/json')) {
-                    data = await response.json();
-                } else {
-                    data = await response.text();
-                }
-
-                showSuccess(response.status, data);
-            } catch (error) {
-                showError(`Request failed: ${error.message}`);
-            }
+        Object.entries(relationTypeStats).forEach(([type, count]) => {
+          const color = relationTypeColors[type] || "#999";
+          const div = document.createElement("div");
+          div.innerHTML = `<span style="color: ${color};">■</span> ${type} (${count})`;
+          legend.appendChild(div);
         });
+      }
 
-        // Clear form
-        clearBtn.addEventListener('click', () => {
-            apiForm.reset();
-            responseSection.classList.add('hidden');
-            updateUrlPreview();
+      function clearGraph() {
+        if (network) network.destroy();
+        network = null;
+        nodes = null;
+        edges = null;
+        relationTypeStats = {};
+        document.getElementById("description").value = "";
+        document.getElementById("legend").innerHTML = "";
+        document.getElementById("network").innerHTML = "";
+        hideError();
+      }
+
+      function showLoading(show) {
+        document.getElementById("loading").style.display = show
+          ? "block"
+          : "none";
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error");
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("error").style.display = "none";
+      }
+
+      document
+        .getElementById("description")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") searchNodes();
         });
-
-        // Helper functions
-        function showLoading() {
-            responseSection.classList.remove('hidden');
-            statusIndicator.className = 'status-indicator status-loading';
-            statusIndicator.classList.remove('hidden');
-            statusIndicator.innerHTML = '<span class="loader"></span>Loading...';
-            responseBox.textContent = '';
-        }
-
-        function showSuccess(statusCode, data) {
-            statusIndicator.className = 'status-indicator status-success';
-            statusIndicator.classList.remove('hidden');
-            statusIndicator.textContent = `✓ ${statusCode} OK`;
-            responseBox.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-        }
-
-        function showError(message) {
-            responseSection.classList.remove('hidden');
-            statusIndicator.className = 'status-indicator status-error';
-            statusIndicator.classList.remove('hidden');
-            statusIndicator.textContent = `✗ Error`;
-            responseBox.textContent = message;
-        }
-
-        // Initialize
-        updateUrlPreview();
     </script>
-</body>
+  </body>
 </html>
