@@ -9,18 +9,20 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Component;
 
+import chasky.ai_gatherer.common.ai.LmStudioAiConfig;
 import chasky.ai_gatherer.common.ai.NodeAiConfig;
+import chasky.ai_gatherer.common.ai.NodeAiInterface;
 import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
 import jakarta.annotation.PostConstruct;
 
 @Component
 public class NodeAiClient {
 
-    private String system = "You are a scientist that defines a topic by category, what topics of categories this depends on and what topics of categories this enables.";
-    private float temperature = 0f;
+    private final NodeAiInterface aiConfig;
 
-    // NodeAiConfig aiConfig = new NodeAiConfig(system, temperature);
-    NodeAiConfig aiConfig = new NodeAiConfig("", temperature);
+    public NodeAiClient(LmStudioAiConfig aiConfig) {
+        this.aiConfig = aiConfig;
+    }
 
     private final Class<?> object = NodeRelationsResponse.class;
 
@@ -37,13 +39,12 @@ public class NodeAiClient {
 
         HttpResponse<String> response = sendRequest(httpRequest);
 
-        System.out.println(response.body());
-
         if (response.statusCode() != 200) {
-            throw new IOException("Failed to get response from OpenAI");
+            throw new IOException("Failed to get response from AI");
         }
 
-        return aiConfig.parseResponse(response.body(), NodeRelationsResponse.class);
+        return aiConfig.parseResponse(response.body(),
+                NodeRelationsResponse.class);
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request)

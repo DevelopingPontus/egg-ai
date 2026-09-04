@@ -1,19 +1,17 @@
 package chasky.ai_gatherer.feature.node;
 
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import chasky.ai_gatherer.feature.node.dto.NodeDTO;
 import chasky.ai_gatherer.feature.node.entity.Node;
-import chasky.ai_gatherer.feature.node.entity.NodeId;
 import chasky.ai_gatherer.feature.node.relation.NodeRelationRepository;
 import chasky.ai_gatherer.feature.node.relation.NodeRelationService;
 import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
 import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
 import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
 import chasky.ai_gatherer.feature.node.request.NodeRequest;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.Size;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +24,8 @@ public class NodeService {
     private final NodeRelationRepository nodeRelationRepository;
     private final NodeRelationService nodeRelationService;
 
+    ObjectMapper mapper = new ObjectMapper();
+
     public NodeService(NodeAiClient aiClient, NodeRepository nodeRepository,
             NodeRelationRepository nodeRelationRepository, NodeRelationService nodeRelationService) {
         this.aiClient = aiClient;
@@ -34,12 +34,19 @@ public class NodeService {
         this.nodeRelationService = nodeRelationService;
     }
 
+
+
     public List<NodeRelationDTO> generateNodeWithRelations(NodeRequest prompt)
             throws IOException, InterruptedException {
         NodeRelationsResponse response = aiClient.promptAi(prompt.toString());
         if (response.queryWasReasonable() == false) {
             System.out.println("Query was not reasonable.");
         }
+        // else {
+        //     for (int i = 0; i < 2; i++) {
+        //         response = itterateAnswer("", response);
+        //     }
+        // }
 
         saveNodesIfMissing(response);
         saveNodeRelations(response);
@@ -48,11 +55,39 @@ public class NodeService {
                 response.treeOfNodes().getFirst().nodeDTO().nodeId());
         return relatedNodes;
     }
+    
+
+
+    private NodeRelationsResponse itterateAnswer(String extraInput ,NodeRelationsResponse response) 
+            throws IOException, InterruptedException {
+
+        String jsonReasoing = response.reasoning();
+
+        jsonReasoing = jsonReasoing
+    .replace("\n", "\\n")
+    .replace("\r", "\\r")
+    .replace("\t", "\\t")
+    .replace("\"", "\\\"");
+    
+                NodeRelationsResponse itterableResponse = new NodeRelationsResponse(
+                    jsonReasoing,
+                            response.treeOfNodes(),
+                                    response.queryWasReasonable()
+                );
+            
+            response = aiClient.promptAi(extraInput + itterableResponse);
+        
+        return response;
+    }
+
+
 
     public List<NodeDTO> getAllNodes() {
         List<Node> nodes = nodeRepository.findAll();
         return nodes.stream().map(node -> toDto(node)).toList();
     }
+
+
 
     private void saveNodesIfMissing(NodeRelationsResponse response) {
         List<Node> nodes = new ArrayList<>();
@@ -68,6 +103,8 @@ public class NodeService {
         nodeRepository.saveAll(nodes);
     }
 
+
+
     private void saveNodeRelations(NodeRelationsResponse response) {
         for (NodeRelationDTO relation : response.treeOfNodes()) {
             Node node = nodeRepository.findById(relation.nodeDTO().nodeId()).get();
@@ -80,6 +117,8 @@ public class NodeService {
             }
         }
     }
+
+
 
     public List<NodeDTO> toDtos(List<Node> nodes) {
         List<NodeDTO> nodeDtos = new ArrayList<>();

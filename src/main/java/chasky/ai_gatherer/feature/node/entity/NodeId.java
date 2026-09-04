@@ -22,11 +22,11 @@ public class NodeId implements Serializable {
     // Getters and setters
 
 
-    public String getCategory() {
+    public String getcategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setcategory(String category) {
         this.category = category;
     }
 

@@ -12,13 +12,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
+import chasky.ai_gatherer.common.util.MyJsonSchemaGeneratorForLmStudio;
 
 @Configuration
-public class LmStudioAiConfig {
+public class LmStudioAiConfig implements NodeAiInterface {
   private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
 
-  MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
+  MyJsonSchemaGeneratorForLmStudio generator = new MyJsonSchemaGeneratorForLmStudio("nodeTree");
 
   private String format;
 
@@ -28,10 +28,10 @@ public class LmStudioAiConfig {
   // private final String API_URL = "https://api.openai.com/v1/responses";
   // private final String model = "gpt-4o";
   private final String OPENAI_API_KEY = "not-needed";
-  private final String API_URL = "http://127.0.0.1:1234/v1/responses";
-  private final String model = "google/gemma-4-e4b";
+  private final String API_URL = "http://127.0.0.1:1234/v1/chat/completions";
+  private final String model = "qwen/qwen3.5-9b";
 
-  private String system = "";
+  private String system = "You are tasked with creating a web/tree of nodes by defining the nodes and the relations.";
   private Float temperature = 0f;
 
   public LmStudioAiConfig() {
@@ -46,17 +46,18 @@ public class LmStudioAiConfig {
     if (format == null) {
       format = generator.generateSchema(object);
     }
-    System.out.println(format);
+    // System.out.println(format);
 
     return String.format("""
             {
               "model": "%s",
-              "input": [
+              "messages": [
                 { "role": "system", "content": "%s" },
                 { "role": "user", "content": "%s" }
                 ],
                 "temperature": %s,
-                "text": %s
+                "response_format": %s,
+                "stream": false
         }
                 """, model, system, prompt, temperature, format);
   }
@@ -67,21 +68,20 @@ public class LmStudioAiConfig {
         .header("Content-Type", "application/json")
         .header("Authorization", "Bearer " + OPENAI_API_KEY)
         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-        .timeout(java.time.Duration.ofSeconds(120))
+        .timeout(java.time.Duration.ofSeconds(520))
         .build();
   }
 
   public <T> T parseResponse(String responseBody,
       Class<T> responseType) throws JsonMappingException, JsonProcessingException {
     JsonNode root = objectMapper.readTree(responseBody);
-
-    String text = root.path("output")
-        .get(0)
-        .path("content")
-        .get(0)
-        .path("text")
-        .asText();
-
+    
+    String text = root.path("choices")
+    .get(0)
+    .path("message")
+    .path("content")
+    .asText();
+    
     return objectMapper.readValue(text, responseType);
   }
 
