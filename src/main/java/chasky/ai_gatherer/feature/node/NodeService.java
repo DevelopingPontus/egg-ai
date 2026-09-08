@@ -34,8 +34,6 @@ public class NodeService {
         this.nodeRelationService = nodeRelationService;
     }
 
-
-
     public List<NodeRelationDTO> generateNodeWithRelations(NodeRequest prompt)
             throws IOException, InterruptedException {
         NodeRelationsResponse response = aiClient.promptAi(prompt.toString());
@@ -43,9 +41,9 @@ public class NodeService {
             System.out.println("Query was not reasonable.");
         }
         // else {
-        //     for (int i = 0; i < 2; i++) {
-        //         response = itterateAnswer("", response);
-        //     }
+        // for (int i = 0; i < 2; i++) {
+        // response = itterateAnswer("", response);
+        // }
         // }
 
         saveNodesIfMissing(response);
@@ -55,39 +53,32 @@ public class NodeService {
                 response.treeOfNodes().getFirst().nodeDTO().nodeId());
         return relatedNodes;
     }
-    
 
-
-    private NodeRelationsResponse itterateAnswer(String extraInput ,NodeRelationsResponse response) 
+    private NodeRelationsResponse itterateAnswer(String extraInput, NodeRelationsResponse response)
             throws IOException, InterruptedException {
 
         String jsonReasoing = response.reasoning();
 
         jsonReasoing = jsonReasoing
-    .replace("\n", "\\n")
-    .replace("\r", "\\r")
-    .replace("\t", "\\t")
-    .replace("\"", "\\\"");
-    
-                NodeRelationsResponse itterableResponse = new NodeRelationsResponse(
-                    jsonReasoing,
-                            response.treeOfNodes(),
-                                    response.queryWasReasonable()
-                );
-            
-            response = aiClient.promptAi(extraInput + itterableResponse);
-        
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+                .replace("\"", "\\\"");
+
+        NodeRelationsResponse itterableResponse = new NodeRelationsResponse(
+                jsonReasoing,
+                response.treeOfNodes(),
+                response.queryWasReasonable());
+
+        response = aiClient.promptAi(extraInput + itterableResponse);
+
         return response;
     }
-
-
 
     public List<NodeDTO> getAllNodes() {
         List<Node> nodes = nodeRepository.findAll();
         return nodes.stream().map(node -> toDto(node)).toList();
     }
-
-
 
     private void saveNodesIfMissing(NodeRelationsResponse response) {
         List<Node> nodes = new ArrayList<>();
@@ -103,8 +94,6 @@ public class NodeService {
         nodeRepository.saveAll(nodes);
     }
 
-
-
     private void saveNodeRelations(NodeRelationsResponse response) {
         for (NodeRelationDTO relation : response.treeOfNodes()) {
             Node node = nodeRepository.findById(relation.nodeDTO().nodeId()).get();
@@ -117,8 +106,6 @@ public class NodeService {
             }
         }
     }
-
-
 
     public List<NodeDTO> toDtos(List<Node> nodes) {
         List<NodeDTO> nodeDtos = new ArrayList<>();
