@@ -36,14 +36,15 @@ public class NodeService {
 
     public List<NodeRelationDTO> generateNodeWithRelations(NodeRequest prompt)
             throws IOException, InterruptedException {
-        NodeRelationsResponse response = aiClient.promptAi(prompt.toString(), "");
+        NodeRelationsResponse response = aiClient.promptAi(prompt.toString(), "Define the core node and it's closest relations.");
         if (response.queryWasReasonable() == false) {
             System.out.println("Query was not reasonable.");
-        } else {
-            for (int i = 0; i < 2; i++) {
-                response = itterateAnswer("", response);
-            }
-        }
+        } 
+        // else {
+        //     for (int i = 0; i < 2; i++) {
+        //         response = itterateAnswer("", response);
+        //     }
+        // }
 
         saveNodesIfMissing(response);
         saveNodeRelations(response);

@@ -111,8 +111,8 @@
           relationTypeStats[relationType] =
             (relationTypeStats[relationType] || 0) + 1;
 
-          const node = item.nodeDTO?.nodeId;
-          const related = item.relatedNodeDTO?.nodeId;
+          const node = item.parentDTO?.nodeId;
+          const related = item.childDTO?.nodeId;
 
           // Add source node
           if (node) {
@@ -121,7 +121,7 @@
               nodes.add({
                 id: nodeId,
                 label: node.what || "Unknown",
-                title: `${node.what}\nhow: ${node.how}\nwhy: ${node.why}\n(Double-click to expand)`,
+                title: `what: ${node.what}\nhow: ${node.how}\nwhy: ${node.why}\n(Double-click to expand)`,
                 shape: "box",
               });
             }
@@ -129,17 +129,17 @@
 
           // Add related node
           if (related) {
-            const nodeId = `${node.what}::${node.how}::${node.why}`;
-            if (!nodes.get(nodeId)) {
+            const relatedId = `${related.what}::${related.how}::${related.why}`;
+            if (!nodes.get(relatedId)) {
               nodes.add({
-                id: nodeId,
-                label: node.what || "Unknown",
-                title: `${node.what}\nhow: ${node.how}\nwhy: ${node.why}\n(Double-click to expand)`,
+                id: relatedId,
+                label: related.what || "Unknown",
+                title: `what: ${related.what}\nhow: ${related.how}\nwhy: ${related.why}\n(Double-click to expand)`,
                 shape: "box",
               });
             }
           }
-
+          
           // Add edge for this relation
           if (node && related) {
             const nodeId = `${node.what}::${node.how}::${node.why}`;
@@ -177,7 +177,8 @@
             },
           },
           layout: {
-            hierarchical: true
+            hierarchical: true,
+            avoidOverlap: 1.0,
           },
         };
 
