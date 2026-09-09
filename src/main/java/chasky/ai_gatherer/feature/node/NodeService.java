@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import chasky.ai_gatherer.feature.node.dto.NodeDTO;
 import chasky.ai_gatherer.feature.node.entity.Node;
+import chasky.ai_gatherer.feature.node.entity.NodeId;
 import chasky.ai_gatherer.feature.node.relation.NodeRelationRepository;
 import chasky.ai_gatherer.feature.node.relation.NodeRelationService;
 import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
@@ -36,10 +37,11 @@ public class NodeService {
 
     public List<NodeRelationDTO> generateNodeWithRelations(NodeRequest prompt)
             throws IOException, InterruptedException {
-        NodeRelationsResponse response = aiClient.promptAi(prompt.toString(), "Define the core node and it's closest relations.");
+        NodeRelationsResponse response = aiClient.promptAi(prompt.toString(),
+                "Define the core node and it's closest relations.");
         if (response.queryWasReasonable() == false) {
             System.out.println("Query was not reasonable.");
-        } 
+        }
         // else {
         //     for (int i = 0; i < 2; i++) {
         //         response = itterateAnswer("", response);
@@ -49,9 +51,40 @@ public class NodeService {
         saveNodesIfMissing(response);
         saveNodeRelations(response);
 
-        List<NodeRelationDTO> relations = response.treeOfNodes();
-        System.out.println("-----" + response.treeOfNodes().toString());
         return response.treeOfNodes();
+    }
+    
+    public List<NodeRelationDTO> expandNodeWithRelations(NodeDTO node)
+            throws IOException, InterruptedException {
+        NodeRelationsResponse response = aiClient.promptAi(node.toString(),
+                "Define the closest relations to this node.");
+        if (response.queryWasReasonable() == false) {
+            System.out.println("Query was not reasonable.");
+        }
+
+        NodeRelationsResponse finalResponse = setOriginalNodeToRelations(response, node);
+
+        // else {
+        // for (int i = 0; i < 2; i++) {
+        // response = itterateAnswer("", response);
+        // }
+        // }
+
+        saveNodesIfMissing(finalResponse);
+        saveNodeRelations(finalResponse);
+
+        return finalResponse.treeOfNodes();
+    }
+    
+    private NodeRelationsResponse setOriginalNodeToRelations(NodeRelationsResponse response, NodeDTO rootNode) {
+        List<NodeRelationDTO> relations = response.treeOfNodes();
+        List<NodeRelationDTO> finalRelations = new ArrayList<>();
+
+        for (NodeRelationDTO relation : relations) {
+            finalRelations.add(new NodeRelationDTO(rootNode, relation.relationType(), relation.childDTO()));
+        }
+        
+        return new NodeRelationsResponse(response.reasoning(), finalRelations, response.queryWasReasonable());
     }
 
     private NodeRelationsResponse itterateAnswer(String extraInput, NodeRelationsResponse response)
