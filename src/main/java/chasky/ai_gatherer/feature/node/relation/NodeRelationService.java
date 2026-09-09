@@ -46,62 +46,63 @@ public class NodeRelationService {
                 .toList();
     }
 
-    // private void collectRelations(Node node, int depth, Set<NodeId> visited, Set<NodeRelation> allRelations) {
-    //     if (depth <= 0 || visited.contains(node.getId())) {
-    //         return;
-    //     }
-
-    //     visited.add(node.getId());
-
-    //     // Get direct relations
-    //     List<NodeRelation> parentRelations = nodeRelationRepository.findByNode(node);
-    //     List<NodeRelation> childRelations = nodeRelationRepository.findByRelatedNode(node);
-
-    //     allRelations.addAll(childRelations);
-    //     allRelations.addAll(parentRelations);
-
-    //     // Recursively fetch next level
-    //     for (NodeRelation relation : childRelations) {
-    //         collectRelations(relation.getnode(), depth - 1, visited, allRelations);
-    //     }
-    //     for (NodeRelation relation : parentRelations) {
-    //         collectRelations(relation.getrelatedNode(), depth - 1, visited, allRelations);
-    //     }
+    // private void collectRelations(Node node, int depth, Set<NodeId> visited,
+    // Set<NodeRelation> allRelations) {
+    // if (depth <= 0 || visited.contains(node.getId())) {
+    // return;
     // }
-private void collectRelations(
-        Node start,
-        Set<NodeId> visited,
-        Set<NodeRelation> allRelations) {
 
-    Queue<Node> queue = new ArrayDeque<>();
-    queue.add(start);
+    // visited.add(node.getId());
 
-    while (!queue.isEmpty()) {
-        Node node = queue.poll();
+    // // Get direct relations
+    // List<NodeRelation> parentRelations = nodeRelationRepository.findByNode(node);
+    // List<NodeRelation> childRelations =
+    // nodeRelationRepository.findByRelatedNode(node);
 
-        if (!visited.add(node.getId())) {
-            continue;
-        }
+    // allRelations.addAll(childRelations);
+    // allRelations.addAll(parentRelations);
 
-        List<NodeRelation> outgoing =
-                nodeRelationRepository.findByNode(node);
+    // // Recursively fetch next level
+    // for (NodeRelation relation : childRelations) {
+    // collectRelations(relation.getnode(), depth - 1, visited, allRelations);
+    // }
+    // for (NodeRelation relation : parentRelations) {
+    // collectRelations(relation.getrelatedNode(), depth - 1, visited,
+    // allRelations);
+    // }
+    // }
+    private void collectRelations(
+            Node start,
+            Set<NodeId> visited,
+            Set<NodeRelation> allRelations) {
 
-        List<NodeRelation> incoming =
-                nodeRelationRepository.findByRelatedNode(node);
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.add(start);
 
-        for (NodeRelation relation : outgoing) {
-            if (allRelations.add(relation)) {
-                queue.add(relation.getrelatedNode());
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+
+            if (!visited.add(node.getId())) {
+                continue;
             }
-        }
 
-        for (NodeRelation relation : incoming) {
-            if (allRelations.add(relation)) {
-                queue.add(relation.getnode());
+            List<NodeRelation> outgoing = nodeRelationRepository.findByParent(node);
+
+            List<NodeRelation> incoming = nodeRelationRepository.findByChild(node);
+
+            for (NodeRelation relation : outgoing) {
+                if (allRelations.add(relation)) {
+                    queue.add(relation.getChild());
+                }
+            }
+
+            for (NodeRelation relation : incoming) {
+                if (allRelations.add(relation)) {
+                    queue.add(relation.getParent());
+                }
             }
         }
     }
-}
 
     public List<NodeRelationDTO> toDtos(List<NodeRelation> relations) {
         List<NodeRelationDTO> relationDtos = new ArrayList<>();
@@ -112,8 +113,8 @@ private void collectRelations(
     }
 
     public NodeRelationDTO toDto(NodeRelation nodeRelation) {
-        NodeDTO nodeDto = new NodeDTO(nodeRelation.getnode().getId());
-        NodeDTO relatedNodeDTO = new NodeDTO(nodeRelation.getrelatedNode().getId());
+        NodeDTO nodeDto = new NodeDTO(nodeRelation.getParent().getId());
+        NodeDTO relatedNodeDTO = new NodeDTO(nodeRelation.getChild().getId());
         return new NodeRelationDTO(
                 nodeDto, nodeRelation.getRelationType(),
                 relatedNodeDTO);

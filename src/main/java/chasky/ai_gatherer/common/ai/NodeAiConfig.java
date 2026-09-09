@@ -43,7 +43,7 @@ public class NodeAiConfig implements NodeAiInterface {
   }
 
   @Override
-  public String constructRequestBody(String prompt, Class<?> object) {
+  public String constructRequestBody(String prompt, String systemPrompt, Class<?> object) {
     if (format == null) {
       format = generator.generateSchema(object);
     }

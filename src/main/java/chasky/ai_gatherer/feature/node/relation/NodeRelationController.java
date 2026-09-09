@@ -25,6 +25,6 @@ public class NodeRelationController {
 
     @GetMapping
     public List<NodeRelationDTO> getNodeRelations(NodeId nodeId) {
-        return nodeRelationService.getNodeRelations(5, nodeId);
+        return nodeRelationService.getNodeRelations(10, nodeId);
     }
 }

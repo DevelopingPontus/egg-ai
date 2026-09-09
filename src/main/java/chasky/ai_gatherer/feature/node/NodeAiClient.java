@@ -32,8 +32,8 @@ public class NodeAiClient {
 
     private final Set<Integer> RETRYABLE_STATUS = Set.of(429, 500, 502, 503, 504);
 
-    public NodeRelationsResponse promptAi(String prompt) throws IOException, InterruptedException {
-        String requestBody = aiConfig.constructRequestBody(prompt, object);
+    public NodeRelationsResponse promptAi(String prompt, String systemPrompt) throws IOException, InterruptedException {
+        String requestBody = aiConfig.constructRequestBody(prompt, systemPrompt, object);
 
         HttpRequest httpRequest = aiConfig.constructHttpRequest(requestBody);
 

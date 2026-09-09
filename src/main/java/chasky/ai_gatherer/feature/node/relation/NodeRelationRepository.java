@@ -9,8 +9,8 @@ import chasky.ai_gatherer.feature.node.entity.Node;
 import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
 
 public interface NodeRelationRepository extends JpaRepository<NodeRelation, UUID> {
-   List<NodeRelation> findByNode(Node parentNode);
+   List<NodeRelation> findByParent(Node parentNode);
 
-   List<NodeRelation> findByRelatedNode(Node childNode);
+   List<NodeRelation> findByChild(Node childNode);
 
 }

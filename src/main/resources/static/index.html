@@ -116,12 +116,12 @@
 
           // Add source node
           if (node) {
-            const nodeId = `${node.category}::${node.topic}`;
+            const nodeId = `${node.what}::${node.how}::${node.why}`;
             if (!nodes.get(nodeId)) {
               nodes.add({
                 id: nodeId,
-                label: node.topic || "Unknown",
-                title: `${node.topic}\nCategory: ${node.category}\n(Double-click to expand)`,
+                label: node.what || "Unknown",
+                title: `${node.what}\nhow: ${node.how}\nwhy: ${node.why}\n(Double-click to expand)`,
                 shape: "box",
               });
             }
@@ -129,12 +129,12 @@
 
           // Add related node
           if (related) {
-            const relatedId = `${related.category}::${related.topic}`;
-            if (!nodes.get(relatedId)) {
+            const nodeId = `${node.what}::${node.how}::${node.why}`;
+            if (!nodes.get(nodeId)) {
               nodes.add({
-                id: relatedId,
-                label: related.topic || "Unknown",
-                title: `${related.topic}\nCategory: ${related.category}\n(Double-click to expand)`,
+                id: nodeId,
+                label: node.what || "Unknown",
+                title: `${node.what}\nhow: ${node.how}\nwhy: ${node.why}\n(Double-click to expand)`,
                 shape: "box",
               });
             }
@@ -142,8 +142,8 @@
 
           // Add edge for this relation
           if (node && related) {
-            const nodeId = `${node.category}::${node.topic}`;
-            const relatedId = `${related.category}::${related.topic}`;
+            const nodeId = `${node.what}::${node.how}::${node.why}`;
+            const relatedId = `${related.what}::${node.how}::${related.why}`;
             const edgeId = `${nodeId}-${relationType}-${relatedId}`;
 
             if (!edges.get(edgeId)) {
@@ -177,8 +177,7 @@
             },
           },
           layout: {
-            hierarchical: true,
-            avoidOverlap: 1.0,
+            hierarchical: true
           },
         };
 

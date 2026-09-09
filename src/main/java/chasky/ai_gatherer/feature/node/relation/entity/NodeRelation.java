@@ -20,19 +20,20 @@ public class NodeRelation {
     private UUID id;
 
     @ManyToOne()
-    private Node node;
-
-    @ManyToOne
-    private Node relatedNode;
+    private Node parent;
 
     private String relationType;
+
+    @ManyToOne
+    private Node child;
+
 
     public NodeRelation() {
     }
 
-    public NodeRelation(Node node, String relationType, Node relatedNode) {
-        this.node = node;
-        this.relatedNode = relatedNode;
+    public NodeRelation(Node parent, String relationType, Node child) {
+        this.parent = parent;
+        this.child = child;
         this.relationType = relationType;
     }
 
@@ -44,20 +45,20 @@ public class NodeRelation {
         this.id = id;
     }
 
-    public Node getnode() {
-        return node;
+    public Node getParent() {
+        return parent;
     }
 
-    public void setnode(Node node) {
-        this.node = node;
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 
-    public Node getrelatedNode() {
-        return relatedNode;
+    public Node getChild() {
+        return child;
     }
 
-    public void setrelatedNode(Node relatedNode) {
-        this.relatedNode = relatedNode;
+    public void setChild(Node child) {
+        this.child = child;
     }
 
     public String getRelationType() {

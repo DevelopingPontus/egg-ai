@@ -30,7 +30,7 @@ public class CategoryAiClient {
     private final Set<Integer> RETRYABLE_STATUS = Set.of(429, 500, 502, 503, 504);
 
     public CategoryResponse promptAi(String prompt) throws IOException, InterruptedException {
-        String requestBody = aiConfig.constructRequestBody(prompt, object);
+        String requestBody = aiConfig.constructRequestBody(prompt,"", object);
 
         HttpRequest httpRequest = aiConfig.constructHttpRequest(requestBody);
 

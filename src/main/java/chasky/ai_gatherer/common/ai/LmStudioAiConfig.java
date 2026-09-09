@@ -31,18 +31,18 @@ public class LmStudioAiConfig implements NodeAiInterface {
   private final String API_URL = "http://127.0.0.1:1234/v1/chat/completions";
   private final String model = "qwen/qwen3.5-9b";
 
-  private String system = "You are tasked with creating a web/tree of nodes by defining the nodes and the relations.";
+  // private String system = "You are tasked with creating a web/tree of nodes.";
   private Float temperature = 0f;
 
   public LmStudioAiConfig() {
   }
 
   public LmStudioAiConfig(String system, Float temperature) {
-    this.system = system;
+    // this.system = system;
     this.temperature = temperature;
   }
 
-  public String constructRequestBody(String prompt, Class<?> object) {
+  public String constructRequestBody(String prompt, String systemPrompt, Class<?> object) {
     if (format == null) {
       format = generator.generateSchema(object);
     }
@@ -56,10 +56,9 @@ public class LmStudioAiConfig implements NodeAiInterface {
                 { "role": "user", "content": "%s" }
                 ],
                 "temperature": %s,
-                "response_format": %s,
-                "stream": false
+                "response_format": %s
         }
-                """, model, system, prompt, temperature, format);
+                """, model, systemPrompt, prompt, temperature, format);
   }
 
   public HttpRequest constructHttpRequest(String requestBody) {
@@ -68,7 +67,7 @@ public class LmStudioAiConfig implements NodeAiInterface {
         .header("Content-Type", "application/json")
         .header("Authorization", "Bearer " + OPENAI_API_KEY)
         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-        .timeout(java.time.Duration.ofSeconds(520))
+        // .timeout(java.time.Duration.ofSeconds(520))
         .build();
   }
 

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Explorer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape-cose-bilkent/4.1.0/cytoscape-cose-bilkent.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            background: #fff;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h1 {
+            font-size: 26px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 22px;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+            margin-bottom: 12px;
+            transition: border-color 0.3s;
+        }
+
+        .input-section textarea:focus {
+            outline: none;
+            border-color: white;
+            background: white;
+        }
+
+        .input-section button {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .input-section button:hover:not(:disabled) {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+
+        .input-section button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 22px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-section h3 {
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            opacity: 0.9;
+        }
+
+        .info-section p {
+            font-size: 13px;
+            margin-bottom: 8px;
+            opacity: 0.85;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 22px;
+            backdrop-filter: blur(10px);
+        }
+
+        .instructions h3 {
+            font-size: 13px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            opacity: 0.9;
+        }
+
+        .instructions ul {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .reset-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .graph-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        #cy {
+            width: 100%;
+            height: 100%;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #666;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .node-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .node-details-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .modal-content h3 {
+            margin-top: 15px;
+            color: #667eea;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .modal-content p {
+            margin-top: 8px;
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+            line-height: 1.6;
+        }
+
+        .modal-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .modal-content button:hover {
+            background: #764ba2;
+        }
+
+        .status-message {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            text-align: center;
+            min-height: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>🔗 Node Explorer</h1>
+
+            <div class="status-message" id="statusMessage"></div>
+
+            <div class="input-section">
+                <label for="topic">Topic Description</label>
+                <textarea
+                    id="topic"
+                    placeholder="Enter topic (e.g., design a restful API)"
+                    rows="3"
+                >design a restful API</textarea>
+                <button id="fetchBtn" onclick="fetchNodes()">🚀 Fetch Nodes</button>
+            </div>
+
+            <div class="info-section">
+                <h3>📊 Graph Info</h3>
+                <p>Nodes: <span id="nodeCount">0</span></p>
+                <p>Edges: <span id="edgeCount">0</span></p>
+                <p>Expanded: <span id="expandedCount">0</span></p>
+            </div>
+
+            <div class="instructions">
+                <h3>💡 How to Use</h3>
+                <ul>
+                    <li>Enter a topic description</li>
+                    <li>Click <strong>Fetch Nodes</strong></li>
+                    <li>Click nodes to expand them</li>
+                    <li>Click again to see details</li>
+                    <li>Drag to pan, scroll to zoom</li>
+                </ul>
+            </div>
+
+            <button class="reset-btn" onclick="clearGraph()">🔄 Clear Graph</button>
+        </div>
+
+        <div class="graph-container">
+            <div id="cy"></div>
+            <div class="empty-state" id="emptyState">
+                <h2>📭 No Nodes Yet</h2>
+                <p>Enter a topic and click "Fetch Nodes" to get started</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="node-details-modal" id="modalDetails">
+        <div class="modal-content">
+            <h2 id="modalTitle">Node Details</h2>
+            <h3>What</h3>
+            <p id="modalWhat"></p>
+            <h3>How</h3>
+            <p id="modalHow"></p>
+            <h3>Why</h3>
+            <p id="modalWhy"></p>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+  let cy;
+let expandedNodes = new Set();
+let allNodeData = new Map();
+
+// Initialize Cytoscape on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initCytoscape();
+});
+
+// Initialize Cytoscape
+function initCytoscape() {
+    cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: [],
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': '#0ea5e9',
+                    'label': 'data(label)',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'width': 120,
+                    'height': 120,
+                    'font-size': 12,
+                    'color': '#fff',
+                    'text-wrap': 'wrap',
+                    'padding': 10,
+                    'border-width': 2,
+                    'border-color': '#0284c7',
+                    'font-weight': 'bold'
+                }
+            },
+            {
+                selector: 'node:hover',
+                style: {
+                    'background-color': '#0284c7',
+                    'border-width': 3,
+                    'border-color': '#fff',
+                    'box-shadow': '0 0 15px #0ea5e9'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 2,
+                    'line-color': '#999',
+                    'target-arrow-color': '#999',
+                    'target-arrow-shape': 'triangle',
+                    'label': 'data(label)',
+                    'text-background-color': '#fff',
+                    'text-background-opacity': 0.8,
+                    'text-background-padding': 3,
+                    'font-size': 10,
+                    'curve-style': 'bezier'
+                }
+            }
+        ],
+        layout: {
+            name: 'cose-bilkent',
+            directed: true,
+            animate: true,
+            animationDuration: 500,
+            nodeSep: 150,
+            edgeSep: 30,
+            gravity: -1500
+        }
+    });
+
+    // Node click handler
+    cy.on('tap', 'node', function(evt) {
+        const node = evt.target;
+        const nodeId = node.id();
+        const nodeDetails = node.data('details');
+
+        if (!expandedNodes.has(nodeId)) {
+            expandNode(nodeDetails);
+        } else {
+            showNodeDetails(nodeDetails);
+        }
+    });
+} // <-- Missing closing brace added here
+
+function createNodeId(nodeData) {
+    return `${nodeData.what}-${nodeData.how}-${nodeData.why}`
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
+function setStatus(message) {
+    const statusEl = document.getElementById('statusMessage');
+    if (statusEl) statusEl.textContent = message;
+}
+
+async function fetchNodes() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) {
+        setStatus('❌ Please enter a topic');
+        return;
+    }
+
+    setStatus('⏳ Fetching nodes...');
+    const fetchBtn = document.getElementById('fetchBtn');
+    if (fetchBtn) fetchBtn.disabled = true;
+
+    try {
+        const response = await fetch(
+            `http://localhost:8080/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(topic)}`,
+            {
+                method: 'POST',
+                headers: { 'accept': '*/*' }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Clear previous graph
+        cy.elements().remove();
+        expandedNodes.clear();
+        allNodeData.clear();
+        
+        processNodes(data, null);
+        
+        setStatus('✅ Nodes loaded successfully');
+        
+        // Hide empty state if it exists
+        const emptyState = document.getElementById('emptyState');
+        if (emptyState) emptyState.style.display = 'none';
+        
+        updateStats();
+
+    } catch (error) {
+        setStatus('❌ Error: ' + error.message);
+        console.error('Error:', error);
+    } finally {
+        if (fetchBtn) fetchBtn.disabled = false;
+    }
+}
+
+async function expandNode(nodeData) {
+    setStatus('⏳ Expanding node...');
+    const fetchBtn = document.getElementById('fetchBtn');
+    if (fetchBtn) fetchBtn.disabled = true;
+
+    try {
+        const response = await fetch(
+            `http://localhost:8080/api/v1/nodes?descriptionOfTopic=${encodeURIComponent(nodeData.what)}`,
+            {
+                method: 'POST',
+                headers: { 'accept': '*/*' }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        processNodes(data, nodeData);
+        
+        const nodeId = createNodeId(nodeData);
+        expandedNodes.add(nodeId);
+        updateStats();
+        setStatus('✅ Node expanded successfully');
+
+    } catch (error) {
+        setStatus('❌ Failed to expand node: ' + error.message);
+        console.error('Expand Error:', error);
+        // Re-enable button so user can try again
+        if (fetchBtn) fetchBtn.disabled = false;
+    }
+}
+
+// --- MISSING FUNCTION: processNodes ---
+// This function is critical. It takes the raw data from the API and converts it into Cytoscape elements.
+// It also handles adding edges between the new nodes and existing nodes in the graph.
+function processNodes(data, parentNodeData = null) {
+    // 1. Process Nodes
+    if (data.nodes) {
+        data.nodes.forEach(node => {
+            const nodeId = createNodeId(node);
+            const nodeElement = {
+                group: 'nodes',
+                id: nodeId,
+                label: node.label || node.what, // Fallback label
+                details: node, // Store full data for later expansion
+                // Add position if provided, otherwise Cytoscape will auto-layout
+                x: node.x !== undefined ? node.x : undefined,
+                y: node.y !== undefined ? node.y : undefined
+            };
+
+            // Only add to graph if not already present (prevents duplicates)
+            if (!cy.getElementById(nodeId)) {
+                cy.add(nodeElement);
+                allNodeData.set(nodeId, node);
+            }
+        });
+    }
+
+    // 2. Process Edges (Relationships)
+    if (data.edges) {
+        data.edges.forEach(edge => {
+            const sourceId = createNodeId(edge.source);
+            const targetId = createNodeId(edge.target);
+
+            // Only add edge if both nodes exist in the current graph
+            if (cy.getElementById(sourceId) && cy.getElementById(targetId)) {
+                const edgeElement = {
+                    group: 'edges',
+                    id: `${sourceId}-${targetId}`,
+                    source: sourceId,
+                    target: targetId,
+                    label: edge.label || 'Related',
+                    // Optional: Add data to the edge for later use
+                    data: {
+                        type: edge.type || 'related'
+                    }
+                };
+                cy.add(edgeElement);
+            }
+        });
+    }
+}
+
+// Helper: Show details in a modal or alert (Implement based on your UI)
+function showNodeDetails(nodeDetails) {
+    // Example implementation:
+    const modal = document.getElementById('nodeModal');
+    const detailsText = document.getElementById('nodeDetailsText');
+    
+    if (modal && detailsText) {
+        detailsText.innerHTML = `
+            <strong>What:</strong> ${nodeDetails.what}<br>
+            <strong>How:</strong> ${nodeDetails.how}<br>
+            <strong>Why:</strong> ${nodeDetails.why}<br>
+            <strong>Context:</strong> ${nodeDetails.context || 'No additional context'}
+        `;
+        modal.style.display = 'block';
+    }
+}
+
+// Helper: Update stats (e.g., node count)
+function updateStats() {
+    const count = cy.elements().size();
+    const statsEl = document.getElementById('nodeCount');
+    if (statsEl) {
+        statsEl.textContent = `Nodes: ${count}`;
+    }
+}
+</script>

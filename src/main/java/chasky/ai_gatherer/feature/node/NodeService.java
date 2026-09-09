@@ -36,22 +36,21 @@ public class NodeService {
 
     public List<NodeRelationDTO> generateNodeWithRelations(NodeRequest prompt)
             throws IOException, InterruptedException {
-        NodeRelationsResponse response = aiClient.promptAi(prompt.toString());
+        NodeRelationsResponse response = aiClient.promptAi(prompt.toString(), "");
         if (response.queryWasReasonable() == false) {
             System.out.println("Query was not reasonable.");
+        } else {
+            for (int i = 0; i < 2; i++) {
+                response = itterateAnswer("", response);
+            }
         }
-        // else {
-        // for (int i = 0; i < 2; i++) {
-        // response = itterateAnswer("", response);
-        // }
-        // }
 
         saveNodesIfMissing(response);
         saveNodeRelations(response);
 
-        List<NodeRelationDTO> relatedNodes = nodeRelationService.getNodeRelations(5,
-                response.treeOfNodes().getFirst().nodeDTO().nodeId());
-        return relatedNodes;
+        List<NodeRelationDTO> relations = response.treeOfNodes();
+        System.out.println("-----" + response.treeOfNodes().toString());
+        return response.treeOfNodes();
     }
 
     private NodeRelationsResponse itterateAnswer(String extraInput, NodeRelationsResponse response)
@@ -70,7 +69,7 @@ public class NodeService {
                 response.treeOfNodes(),
                 response.queryWasReasonable());
 
-        response = aiClient.promptAi(extraInput + itterableResponse);
+        response = aiClient.promptAi(extraInput + itterableResponse, "");
 
         return response;
     }
@@ -84,11 +83,11 @@ public class NodeService {
         List<Node> nodes = new ArrayList<>();
 
         for (NodeRelationDTO relation : response.treeOfNodes()) {
-            if (nodeRepository.findById(relation.relatedNodeDTO().nodeId()).isEmpty()) {
-                nodes.add(new Node(relation.relatedNodeDTO().nodeId()));
+            if (nodeRepository.findById(relation.childDTO().nodeId()).isEmpty()) {
+                nodes.add(new Node(relation.childDTO().nodeId()));
             }
-            if (nodeRepository.findById(relation.nodeDTO().nodeId()).isEmpty()) {
-                nodes.add(new Node(relation.nodeDTO().nodeId()));
+            if (nodeRepository.findById(relation.parentDTO().nodeId()).isEmpty()) {
+                nodes.add(new Node(relation.parentDTO().nodeId()));
             }
         }
         nodeRepository.saveAll(nodes);
@@ -96,9 +95,9 @@ public class NodeService {
 
     private void saveNodeRelations(NodeRelationsResponse response) {
         for (NodeRelationDTO relation : response.treeOfNodes()) {
-            Node node = nodeRepository.findById(relation.nodeDTO().nodeId()).get();
-            Node relatedNode = nodeRepository.findById(relation.relatedNodeDTO().nodeId()).get();
-            NodeRelation nodeRelation = new NodeRelation(node, relation.relationType(), relatedNode);
+            Node parent = nodeRepository.findById(relation.parentDTO().nodeId()).get();
+            Node child = nodeRepository.findById(relation.childDTO().nodeId()).get();
+            NodeRelation nodeRelation = new NodeRelation(parent, relation.relationType(), child);
             try {
                 nodeRelationRepository.save(nodeRelation);
             } catch (Exception e) {
