@@ -1,8 +1,8 @@
-package chasky.ai_gatherer.feature.node.relation.entity;
+package chasky.ai_gatherer.legacy.node.relation.entity;
 
 import java.util.UUID;
 
-import chasky.ai_gatherer.feature.node.entity.Node;
+import chasky.ai_gatherer.legacy.node.entity.Node;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

@@ -1,9 +1,9 @@
-package chasky.ai_gatherer.feature.node.entity;
+package chasky.ai_gatherer.legacy.node.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
+import chasky.ai_gatherer.legacy.node.relation.entity.NodeRelation;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

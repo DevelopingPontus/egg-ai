@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.node.relation;
+package chasky.ai_gatherer.legacy.node.relation;
 
 import java.util.List;
 import java.util.Map;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import chasky.ai_gatherer.feature.node.NodeService;
-import chasky.ai_gatherer.feature.node.entity.NodeId;
-import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
+import chasky.ai_gatherer.legacy.node.NodeService;
+import chasky.ai_gatherer.legacy.node.entity.NodeId;
+import chasky.ai_gatherer.legacy.node.relation.dto.NodeRelationDTO;
 import jakarta.validation.Valid;
 
 @RestController

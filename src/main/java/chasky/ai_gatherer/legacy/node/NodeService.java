@@ -1,18 +1,18 @@
-package chasky.ai_gatherer.feature.node;
+package chasky.ai_gatherer.legacy.node;
 
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import chasky.ai_gatherer.feature.node.dto.NodeDTO;
-import chasky.ai_gatherer.feature.node.entity.Node;
-import chasky.ai_gatherer.feature.node.entity.NodeId;
-import chasky.ai_gatherer.feature.node.relation.NodeRelationRepository;
-import chasky.ai_gatherer.feature.node.relation.NodeRelationService;
-import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
-import chasky.ai_gatherer.feature.node.relation.entity.NodeRelation;
-import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
-import chasky.ai_gatherer.feature.node.request.NodeRequest;
+import chasky.ai_gatherer.legacy.node.dto.NodeDTO;
+import chasky.ai_gatherer.legacy.node.entity.Node;
+import chasky.ai_gatherer.legacy.node.entity.NodeId;
+import chasky.ai_gatherer.legacy.node.relation.NodeRelationRepository;
+import chasky.ai_gatherer.legacy.node.relation.NodeRelationService;
+import chasky.ai_gatherer.legacy.node.relation.dto.NodeRelationDTO;
+import chasky.ai_gatherer.legacy.node.relation.entity.NodeRelation;
+import chasky.ai_gatherer.legacy.node.relation.output.NodeRelationsResponse;
+import chasky.ai_gatherer.legacy.node.request.NodeRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;

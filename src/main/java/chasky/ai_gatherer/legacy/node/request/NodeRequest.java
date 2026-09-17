@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.node.request;
+package chasky.ai_gatherer.legacy.node.request;
 
 import jakarta.validation.constraints.Size;
 

@@ -16,7 +16,6 @@ import chasky.ai_gatherer.common.util.MyJsonSchemaGeneratorForLmStudio;
 
 @Configuration
 public class LmStudioAiConfig implements NodeAiInterface {
-  private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
 
   MyJsonSchemaGeneratorForLmStudio generator = new MyJsonSchemaGeneratorForLmStudio("nodeTree");
 

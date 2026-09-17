@@ -16,7 +16,6 @@ import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
 
 @Configuration
 public class NodeAiConfig implements NodeAiInterface {
-  private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
 
   MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
 

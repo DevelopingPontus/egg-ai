@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.node;
+package chasky.ai_gatherer.feature.function.util;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -12,19 +12,23 @@ import org.springframework.stereotype.Component;
 import chasky.ai_gatherer.common.ai.LmStudioAiConfig;
 import chasky.ai_gatherer.common.ai.NodeAiConfig;
 import chasky.ai_gatherer.common.ai.NodeAiInterface;
-import chasky.ai_gatherer.feature.node.relation.output.NodeRelationsResponse;
+import chasky.ai_gatherer.feature.function.dto.FunctionDTO;
+import chasky.ai_gatherer.feature.function.dto.FunctionResponse;
+import chasky.ai_gatherer.feature.function.dto.HelperResponse;
+import chasky.ai_gatherer.feature.function.entity.FunctionEntity;
+import chasky.ai_gatherer.legacy.node.relation.output.NodeRelationsResponse;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class NodeAiClient {
+public class HelpersAiClient {
 
     private final NodeAiInterface aiConfig;
 
-    public NodeAiClient(LmStudioAiConfig aiConfig) {
+    public HelpersAiClient(LmStudioAiConfig aiConfig) {
         this.aiConfig = aiConfig;
     }
 
-    private final Class<?> object = NodeRelationsResponse.class;
+    private final Class<?> object = HelperResponse.class;
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(java.time.Duration.ofSeconds(10))
@@ -32,7 +36,7 @@ public class NodeAiClient {
 
     private final Set<Integer> RETRYABLE_STATUS = Set.of(429, 500, 502, 503, 504);
 
-    public NodeRelationsResponse promptAi(String prompt, String systemPrompt) throws IOException, InterruptedException {
+    public HelperResponse promptAi(String prompt, String systemPrompt) throws IOException, InterruptedException {
         String requestBody = aiConfig.constructRequestBody(prompt, systemPrompt, object);
 
         HttpRequest httpRequest = aiConfig.constructHttpRequest(requestBody);
@@ -44,7 +48,7 @@ public class NodeAiClient {
         }
 
         return aiConfig.parseResponse(response.body(),
-                NodeRelationsResponse.class);
+                HelperResponse.class);
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request)

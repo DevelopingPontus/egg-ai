@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.node.entity;
+package chasky.ai_gatherer.legacy.node.entity;
 
 import java.io.Serializable;
 import java.util.Objects;

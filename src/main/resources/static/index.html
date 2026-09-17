@@ -495,6 +495,15 @@
     <script>
       const API_URL = "http://localhost:8080/api/v1/nodes";
 
+      // --- Configuration: change these to use different node fields ---
+      // Order matters for ID generation and title display. Example: ['category','topic']
+      const NODE_ID_FIELDS = ["what", "how", "why"];
+      // Field to use as the main label for nodes. If missing, first non-empty field from NODE_ID_FIELDS is used.
+      const NODE_LABEL_FIELD = "what";
+      // Which fields to show in the node tooltip/title (defaults to NODE_ID_FIELDS)
+      const NODE_TITLE_FIELDS = NODE_ID_FIELDS;
+      // ---------------------------------------------------------------
+
       const relationTypeColors = {
         solution_for: "#67e8f9",
         related_to: "#a78bfa",
@@ -519,7 +528,33 @@
 
       function buildNodeId(node) {
         if (!node) return null;
-        return `${node.what || "unknown"}::${node.how || "unknown"}::${node.why || "unknown"}`;
+        return NODE_ID_FIELDS.map((f) =>
+          node && node[f] != null ? node[f] : "",
+        ).join("::");
+      }
+
+      function nodeLabel(node) {
+        if (!node) return "Unknown";
+        if (NODE_LABEL_FIELD && node[NODE_LABEL_FIELD])
+          return node[NODE_LABEL_FIELD];
+        for (const f of NODE_ID_FIELDS) {
+          if (node[f]) return node[f];
+        }
+        return "Unknown";
+      }
+
+      function nodeTitle(node) {
+        if (!node) return "";
+        return (
+          NODE_TITLE_FIELDS.map((f) => `${f}: ${node[f] || ""}`).join("\n") +
+          "\n(Double-click to expand)"
+        );
+      }
+
+      function parseNodeIdToDescription(nodeId) {
+        if (!nodeId) return nodeId;
+        // turn 'a::b::c' into 'a b c' or a nicer joined string
+        return nodeId.split("::").filter(Boolean).join(" ");
       }
 
       function updateCounters() {
@@ -596,8 +631,8 @@
           if (parentId && !nodes.get(parentId)) {
             nodes.add({
               id: parentId,
-              label: parent.what || "Unknown",
-              title: `what: ${parent.what}\nhow: ${parent.how}\nwhy: ${parent.why}\n(Double-click to expand)`,
+              label: nodeLabel(parent),
+              title: nodeTitle(parent),
               shape: "box",
               color: {
                 background: "#312e81",
@@ -617,8 +652,8 @@
           if (childId && !nodes.get(childId)) {
             nodes.add({
               id: childId,
-              label: child.what || "Unknown",
-              title: `what: ${child.what}\nhow: ${child.how}\nwhy: ${child.why}\n(Double-click to expand)`,
+              label: nodeLabel(child),
+              title: nodeTitle(child),
               shape: "box",
               color: {
                 background: "#0f766e",
@@ -721,8 +756,9 @@
         network.on("doubleClick", function (params) {
           if (params.nodes.length > 0) {
             const nodeId = params.nodes[0];
+            const desc = `Expand the tree node: ${parseNodeIdToDescription(nodeId)}`;
             console.log(`Expanding relations for: ${nodeId}`);
-            fetchAndAddNodes(`${nodeId}`);
+            fetchAndAddNodes(desc);
           }
         });
       }

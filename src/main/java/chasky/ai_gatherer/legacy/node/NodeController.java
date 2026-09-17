@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.feature.node;
+package chasky.ai_gatherer.legacy.node;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import chasky.ai_gatherer.feature.node.dto.NodeDTO;
-import chasky.ai_gatherer.feature.node.entity.NodeId;
-import chasky.ai_gatherer.feature.node.relation.dto.NodeRelationDTO;
-import chasky.ai_gatherer.feature.node.request.NodeRequest;
+import chasky.ai_gatherer.legacy.node.dto.NodeDTO;
+import chasky.ai_gatherer.legacy.node.entity.NodeId;
+import chasky.ai_gatherer.legacy.node.relation.dto.NodeRelationDTO;
+import chasky.ai_gatherer.legacy.node.request.NodeRequest;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 
