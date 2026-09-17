@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node Relations Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <div>
+      <h1>Node Relations Graph</h1>
+      <input
+        type="text"
+        id="description"
+        placeholder="e.g., my cats are bored"
+      />
+      <button onclick="searchNodes()">Search</button>
+      <button onclick="clearGraph()">Clear</button>
+      <p><small>Double-click a node to explore its relations</small></p>
+    </div>
+
+    <div id="loading" style="display: none">Loading...</div>
+    <div id="error" style="display: none; color: red"></div>
+
+    <div
+      id="network"
+      style="width: 100%; height: 600px; border: 1px solid #ccc"
+    ></div>
+
+    <div id="legend" style="padding: 20px"></div>
+
+    <script>
+      const API_URL = "http://localhost:8080/api/v1/nodes";
+
+      const relationTypeColors = {
+        solution_for: "#667eea",
+        related_to: "#764ba2",
+        parent_of: "#f093fb",
+        child_of: "#4facfe",
+        similar_to: "#43e97b",
+        opposite_of: "#fa709a",
+        dependency_of: "#feca57",
+        causes: "#ff9ff3",
+        caused_by: "#54a0ff",
+      };
+
+      //   Vis-network components that handles the drawing of nodes
+      let network = null;
+      let nodes = null;
+      let edges = null;
+      let relationTypeStats = {};
+
+      function initGraph() {
+        if (!nodes) nodes = new vis.DataSet();
+        if (!edges) edges = new vis.DataSet();
+      }
+
+      function searchNodes() {
+        const description = document.getElementById("description").value.trim();
+
+        if (!description) {
+          showError("Please enter a description");
+          return;
+        }
+
+        fetchAndAddNodes(description);
+      }
+
+      function fetchAndAddNodes(description) {
+        showLoading(true);
+        hideError();
+
+        const url = `${API_URL}?descriptionOfTopic=${encodeURIComponent(description)}`;
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
+          .then((data) => {
+            addToGraph(data);
+          })
+          .catch((error) => {
+            showError(`Error: ${error.message}`);
+            console.error(error);
+          })
+          .finally(() => showLoading(false));
+      }
+
+      function addToGraph(data) {
+        if (!Array.isArray(data) || data.length === 0) {
+          showError("No results found");
+          return;
+        }
+
+        initGraph();
+
+        // Process all nodeRelations
+        data.forEach((item) => {
+          const relationType = item.relationType || "unknown";
+          relationTypeStats[relationType] =
+            (relationTypeStats[relationType] || 0) + 1;
+
+          const node = item.nodeDTO?.nodeId;
+          const related = item.relatedNodeDTO?.nodeId;
+
+          // Add source node
+          if (node) {
+            const nodeId = `${node.category}::${node.topic}`;
+            if (!nodes.get(nodeId)) {
+              nodes.add({
+                id: nodeId,
+                label: node.topic || "Unknown",
+                title: `${node.topic}\nCategory: ${node.category}\n(Double-click to expand)`,
+                shape: "box",
+              });
+            }
+          }
+
+          // Add related node
+          if (related) {
+            const relatedId = `${related.category}::${related.topic}`;
+            if (!nodes.get(relatedId)) {
+              nodes.add({
+                id: relatedId,
+                label: related.topic || "Unknown",
+                title: `${related.topic}\nCategory: ${related.category}\n(Double-click to expand)`,
+                shape: "box",
+              });
+            }
+          }
+
+          // Add edge for this relation
+          if (node && related) {
+            const nodeId = `${node.category}::${node.topic}`;
+            const relatedId = `${related.category}::${related.topic}`;
+            const edgeId = `${nodeId}-${relationType}-${relatedId}`;
+
+            if (!edges.get(edgeId)) {
+              edges.add({
+                id: edgeId,
+                from: nodeId,
+                to: relatedId,
+                label: relationType,
+                title: relationType,
+                color: relationTypeColors[relationType] || "#999",
+                arrows: "to",
+              });
+            }
+          }
+        });
+
+        renderGraph();
+        updateLegend();
+      }
+
+      function renderGraph() {
+        const graphData = { nodes, edges };
+        const options = {
+          physics: {
+            enabled: true,
+            stabilization: { iterations: 200 },
+            barnesHut: {
+              gravitationalConstant: -26000,
+              centralGravity: 0.3,
+              springLength: 200,
+            },
+          },
+          layout: {
+            hierarchical: true,
+            avoidOverlap: 1.0,
+          },
+        };
+
+        if (network) {
+          network.setData(graphData);
+        } else {
+          network = new vis.Network(
+            document.getElementById("network"),
+            graphData,
+            options,
+          );
+
+          // Listen for double-click to expand node relations
+          network.on("doubleClick", function (params) {
+            if (params.nodes.length > 0) {
+              const nodeId = params.nodes[0];
+              console.log(`Expanding relations for: ${nodeId}`);
+              fetchAndAddNodes(`Expand the tree node: ${nodeId}`);
+            }
+          });
+        }
+      }
+
+      function updateLegend() {
+        const legend = document.getElementById("legend");
+        legend.innerHTML = "<h3>Relation Types:</h3>";
+
+        Object.entries(relationTypeStats).forEach(([type, count]) => {
+          const color = relationTypeColors[type] || "#999";
+          const div = document.createElement("div");
+          div.innerHTML = `<span style="color: ${color};">■</span> ${type} (${count})`;
+          legend.appendChild(div);
+        });
+      }
+
+      function clearGraph() {
+        if (network) network.destroy();
+        network = null;
+        nodes = null;
+        edges = null;
+        relationTypeStats = {};
+        document.getElementById("description").value = "";
+        document.getElementById("legend").innerHTML = "";
+        document.getElementById("network").innerHTML = "";
+        hideError();
+      }
+
+      function showLoading(show) {
+        document.getElementById("loading").style.display = show
+          ? "block"
+          : "none";
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error");
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("error").style.display = "none";
+      }
+
+      document
+        .getElementById("description")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") searchNodes();
+        });
+    </script>
+  </body>
+</html>

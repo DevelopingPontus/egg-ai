@@ -1,4 +1,4 @@
-package chasky.ai_gatherer.legacy.category;
+package chasky.ai_gatherer.feature.function.util;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -9,19 +9,26 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Component;
 
+import chasky.ai_gatherer.common.ai.LmStudioAiConfig;
 import chasky.ai_gatherer.common.ai.NodeAiConfig;
-import chasky.ai_gatherer.legacy.category.dto.CategoryResponse;
+import chasky.ai_gatherer.common.ai.NodeAiInterface;
+import chasky.ai_gatherer.feature.function.dto.FunctionDTO;
+import chasky.ai_gatherer.feature.function.dto.FunctionResponse;
+import chasky.ai_gatherer.feature.function.dto.HelperResponse;
+import chasky.ai_gatherer.feature.function.entity.FunctionEntity;
+import chasky.ai_gatherer.legacy.node.relation.output.NodeRelationsResponse;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class CategoryAiClient {
+public class HelpersAiClient {
 
-    private String system = "You are a scientist that determines the subject of the query, then subjects this depends on and what subjects this enables.";
-    private float temperature = 0f;
+    private final NodeAiInterface aiConfig;
 
-    NodeAiConfig aiConfig = new NodeAiConfig(system, temperature);
+    public HelpersAiClient(LmStudioAiConfig aiConfig) {
+        this.aiConfig = aiConfig;
+    }
 
-    private final Class object = CategoryResponse.class;
+    private final Class<?> object = HelperResponse.class;
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(java.time.Duration.ofSeconds(10))
@@ -29,21 +36,19 @@ public class CategoryAiClient {
 
     private final Set<Integer> RETRYABLE_STATUS = Set.of(429, 500, 502, 503, 504);
 
-    public CategoryResponse promptAi(String prompt) throws IOException, InterruptedException {
-        String requestBody = aiConfig.constructRequestBody(prompt,"", object);
+    public HelperResponse promptAi(String prompt, String systemPrompt) throws IOException, InterruptedException {
+        String requestBody = aiConfig.constructRequestBody(prompt, systemPrompt, object);
 
         HttpRequest httpRequest = aiConfig.constructHttpRequest(requestBody);
 
         HttpResponse<String> response = sendRequest(httpRequest);
 
-        System.out.println(response.body());
-
         if (response.statusCode() != 200) {
-            throw new IOException("Failed to get response from OpenAI");
+            throw new IOException("Failed to get response from AI");
         }
 
-        return aiConfig.parseResponse(response.body(), CategoryResponse.class);
-        // return response;
+        return aiConfig.parseResponse(response.body(),
+                HelperResponse.class);
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request)

@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
 
 @Configuration
-public class NodeAiConfig {
-  private static final Logger log = LoggerFactory.getLogger(NodeAiConfig.class);
+public class NodeAiConfig implements NodeAiInterface {
 
   MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
 
@@ -42,11 +41,11 @@ public class NodeAiConfig {
     this.temperature = temperature;
   }
 
-  public String constructRequestBody(String prompt, Class<?> object) {
+  @Override
+  public String constructRequestBody(String prompt, String systemPrompt, Class<?> object) {
     if (format == null) {
       format = generator.generateSchema(object);
     }
-    System.out.println(format);
 
     return String.format("""
             {
@@ -61,6 +60,7 @@ public class NodeAiConfig {
                 """, model, system, prompt, temperature, format);
   }
 
+  @Override
   public HttpRequest constructHttpRequest(String requestBody) {
     return HttpRequest.newBuilder()
         .uri(URI.create(API_URL))
@@ -71,6 +71,7 @@ public class NodeAiConfig {
         .build();
   }
 
+  @Override
   public <T> T parseResponse(String responseBody,
       Class<T> responseType) throws JsonMappingException, JsonProcessingException {
     JsonNode root = objectMapper.readTree(responseBody);
