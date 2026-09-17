@@ -23,14 +23,14 @@ public class AisClient {
         this.aiConfig = aiConfig;
     }
 
-    @PostConstruct
-    private void checkKey() {
-        if (System.getenv("OPENAI_API_KEY") == null || System.getenv("OPENAI_API_KEY") == "") {
-            throw new IllegalStateException("API key was not loaded before construction");
-        }
+    // @PostConstruct
+    // private void checkKey() {
+    //     if (System.getenv("OPENAI_API_KEY") == null || System.getenv("OPENAI_API_KEY") == "") {
+    //         throw new IllegalStateException("API key was not loaded before construction");
+    //     }
 
-        System.out.println("API Key loaded successfully (first 5 chars: " + System.getenv("OPENAI_API_KEY").substring(0, 5) + "...)");
-    }
+    //     System.out.println("API Key loaded successfully (first 5 chars: " + System.getenv("OPENAI_API_KEY").substring(0, 5) + "...)");
+    // }
 
     /**
      * Makes a request to the OpenAI API using the provided key.
