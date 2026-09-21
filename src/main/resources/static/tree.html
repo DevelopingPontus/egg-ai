@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tree</title>
+    <!-- <link rel="stylesheet" href="./components/css/jsonTreeViewer.css"></link> -->
+    <script type="module" src="./components/js/treeSearch.js"></script>
+    <script type="module" src="./components/js/overview.js" ></script>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">✦</div>
+          <span>Node Relations Graph</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="panel search-panel">
+            <h1>Map ideas, concepts, and relationships.</h1>
+
+            <div class="search-box">
+              <input
+                type="text"
+                id="description"
+                placeholder="Describe a concept or idea... e.g. my cats are bored"
+                aria-label="Search concept"
+              />
+            </div>
+
+            <div class="button-row">
+              <button class="primary-btn" onclick="searchNodes()">
+                Search graph
+              </button>
+            </div>
+          </div>
+
+          <div class="overview">
+  <json-tree-viewer></json-tree-viewer>
+          </div>
+
+        </section>
+
+        <section class="overview">
+            
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
