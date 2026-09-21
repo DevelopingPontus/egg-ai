@@ -102,12 +102,7 @@ public class FunctionServiceHelpers {
             .collect(Collectors.toMap(FunctionEntity::getId, n -> n));
 
         FunctionEntity root = byId.get(rootId);
-        for (FunctionEntity function : all) {
-            if (function.getParent() != null) {
-                byId.get(function.getParent().getId())
-                    .getHelperFunctions().add(function);
-            }
-        }
+        
         return root;
     }
     
