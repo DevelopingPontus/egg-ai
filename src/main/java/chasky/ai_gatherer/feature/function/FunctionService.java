@@ -24,7 +24,8 @@ public class FunctionService {
 
         helpers.itterateToAResponseLayerOf(rootFunction.getHelperFunctions(), 1);
 
-        rootFunction = helpers.functionRepo.findById(rootFunction.getId()).get();
+        // rootFunction = helpers.functionRepo.findById(rootFunction.getId()).get();
+        rootFunction = helpers.getTree(rootFunction.getId());
         return rootFunction;
     }
 
