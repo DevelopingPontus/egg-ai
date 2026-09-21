@@ -227,8 +227,6 @@ class JsonTreeViewer extends HTMLElement {
     </aside>
   </div>
 `;
-        
-
 
         this.textarea = this.querySelector("textarea");
         this.button = this.querySelector("button");
@@ -240,21 +238,110 @@ class JsonTreeViewer extends HTMLElement {
         this.render();
     }
         
+    //     render() {
+    //         this.error.textContent = "";
+
+    //         try {
+    //             const json = JSON.parse(this.textarea.value);
+
+    //             this.tree.innerHTML = "";
+
+    //             const rootNode = this.createNode(json, "root");
+    //             this.tree.appendChild(rootNode);
+
+    //             // Automatically show the root object's details
+    //             this.showDetails(json, "root");
+    //         } catch (error) {
+    //             this.tree.innerHTML = "";
+    //             this.error.textContent = `Invalid JSON: ${error.message}`;
+    //         }
+    //     }
+
+    //     createNode(value, label) {
+    //         const node = document.createElement("div");
+    //         node.className = "tree-node";
+
+    //         const box = document.createElement("div");
+    //         box.className = "node-box";
+
+    //         // Use the object's title when available.
+    //         // Otherwise use the property name or array index.
+    //         const title =
+    //             value &&
+    //                 typeof value === "object" &&
+    //                 !Array.isArray(value) &&
+    //                 value.title
+    //                 ? value.title
+    //                 : label;
+
+    //         box.textContent = label;
+
+    //         box.addEventListener("click", (event) => {
+    //             event.stopPropagation();
+
+    //             document
+    //                 .querySelectorAll(".node-box")
+    //                 .forEach((item) => item.classList.remove("selected"));
+
+    //             box.classList.add("selected");
+    //             this.showDetails(value, title);
+    //         });
+
+    //         node.appendChild(box);
+
+    //         // Only objects and arrays can contain child boxes
+    //         if (value && typeof value === "object") {
+    //             const children = document.createElement("div");
+    //             children.className = "node-children";
+
+    //             if (Array.isArray(value)) {
+    //                 value.forEach((child, index) => {
+    //                     children.appendChild(
+    //                         this.createNode(child, `[${index}]`)
+    //                     );
+    //                 });
+    //             } else {
+    //                 Object.entries(value).forEach(([key, child]) => {
+    //                     // Only create boxes for nested objects or arrays
+    //                     if (child && typeof child === "object") {
+    //                         children.appendChild(
+    //                             this.createNode(child, key)
+    //                         );
+    //                     }
+    //                 });
+    //             }
+
+    //             if (children.children.length > 0) {
+    //                 node.appendChild(children);
+    //             }
+    //         }
+
+    //         return node;
+    //     }
+
+    //     showDetails(value, title) {
+    //         const heading = this.querySelector(".details-panel h3");
+    //         const output = this.querySelector(".details-panel pre");
+
+    //         heading.textContent = title;
+    //         output.textContent = JSON.stringify(value, null, 2);
+    //     }
+    // }
+
+    // customElements.define("json-tree-viewer", JsonTreeViewer);
+    
     render() {
         this.error.textContent = "";
+        this.tree.replaceChildren();
 
         try {
             const json = JSON.parse(this.textarea.value);
+            const rootNode = this.createNode(json, json.name);
 
-            this.tree.innerHTML = "";
-
-            const rootNode = this.createNode(json, "root");
             this.tree.appendChild(rootNode);
-
-            // Automatically show the root object's details
+            this.selectNode(rootNode.querySelector(".node-box"));
             this.showDetails(json, "root");
         } catch (error) {
-            this.tree.innerHTML = "";
             this.error.textContent = `Invalid JSON: ${error.message}`;
         }
     }
@@ -266,59 +353,81 @@ class JsonTreeViewer extends HTMLElement {
         const box = document.createElement("div");
         box.className = "node-box";
 
-        // Use the object's title when available.
-        // Otherwise use the property name or array index.
-        const title =
-            value &&
-                typeof value === "object" &&
-                !Array.isArray(value) &&
-                value.title
-                ? value.title
-                : label;
-
+        const title = this.getNodeTitle(value, label);
         box.textContent = title;
 
         box.addEventListener("click", (event) => {
             event.stopPropagation();
 
-            document
-                .querySelectorAll(".node-box")
-                .forEach((item) => item.classList.remove("selected"));
-
-            box.classList.add("selected");
+            this.selectNode(box);
             this.showDetails(value, title);
         });
 
         node.appendChild(box);
 
-        // Only objects and arrays can contain child boxes
-        if (value && typeof value === "object") {
-            const children = document.createElement("div");
-            children.className = "node-children";
+        if (!this.isContainer(value)) {
+            return node;
+        }
 
-            if (Array.isArray(value)) {
-                value.forEach((child, index) => {
+        const children = document.createElement("div");
+        children.className = "node-children";
+
+        if (Array.isArray(value)) {
+    value.forEach((child, index) => {
+        const childLabel =
+            child &&
+            typeof child === "object" &&
+            child.name !== undefined &&
+            child.name !== null
+                ? String(child.name)
+                : `[${index}]`;
+
+        children.appendChild(
+            // this.createNode(child, "childLabel")
+            this.createNode(child, "o")
+        );
+    });
+        } else {
+            Object.entries(value).forEach(([key, child]) => {
+                if (this.isContainer(child)) {
                     children.appendChild(
-                        this.createNode(child, `[${index}]`)
+                        this.createNode(child, "I")
                     );
-                });
-            } else {
-                Object.entries(value).forEach(([key, child]) => {
-                    // Only create boxes for nested objects or arrays
-                    if (child && typeof child === "object") {
-                        children.appendChild(
-                            this.createNode(child, key)
-                        );
-                    }
-                });
-            }
+                }
+            });
+        }
 
-            if (children.children.length > 0) {
-                node.appendChild(children);
-            }
+        if (children.hasChildNodes()) {
+            node.appendChild(children);
         }
 
         return node;
+    }
+
+    getNodeTitle(value, fallback) {
+        if (
+            value &&
+            typeof value === "object" &&
+            !Array.isArray(value) &&
+            value.title !== undefined &&
+            value.title !== null
+        ) {
+            return String(value.title);
+        }
+
+        return String(fallback);
+    }
+
+    isContainer(value) {
+        return value !== null && typeof value === "object";
+    }
+
+    selectNode(box) {
+        this.tree
+            .querySelectorAll(".node-box.selected")
+            .forEach((node) => node.classList.remove("selected"));
+
+        box?.classList.add("selected");
     }
 
     showDetails(value, title) {
@@ -330,4 +439,4 @@ class JsonTreeViewer extends HTMLElement {
     }
 }
 
-    customElements.define("json-tree-viewer", JsonTreeViewer);
+customElements.define("json-tree-viewer", JsonTreeViewer);
