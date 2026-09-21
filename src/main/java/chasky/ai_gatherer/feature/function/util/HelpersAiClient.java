@@ -74,13 +74,4 @@ public class HelpersAiClient {
         throw new IOException("Unreachable");
     }
 
-    @PostConstruct
-    private void checkKey() {
-        if (System.getenv("OPENAI_API_KEY") == null || System.getenv("OPENAI_API_KEY") == "") {
-            throw new IllegalStateException("API key was not loaded before construction");
-        }
-
-        System.out.println("API Key loaded successfully (first 5 chars: "
-                + System.getenv("OPENAI_API_KEY").substring(0, 5) + "...)");
-    }
 }
