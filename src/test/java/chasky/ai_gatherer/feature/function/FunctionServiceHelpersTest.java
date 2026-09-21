@@ -151,13 +151,16 @@ public class FunctionServiceHelpersTest {
         helpers.itterateToAResponseLayerOf(parent.getHelperFunctions(), 2);
         parent = helpers.getTree(parent.getId());
         assertNotNull(parent.getHelperFunctions().getFirst().getHelperFunctions().getFirst());
+        assertEquals(parent.getHelperFunctions().size(), 3);
+        assertEquals(parent.getHelperFunctions().getFirst().getHelperFunctions().size(), 3);
     }
 
     @Test
     void testFetchSubTree() throws IOException, InterruptedException {
         FunctionEntity parent = helpers.saveFunctionResponseAndReturnParent(functionResponse(numberOfMockHelpers));
-        helpers.itterateToAResponseLayerOf(parent.getHelperFunctions(), 2);
+        helpers.itterateToAResponseLayerOf(parent.getHelperFunctions(), 1);
         List<FunctionEntity> subTree = helpers.functionRepo.fetchSubtree(parent.getId());
+        assertEquals(subTree.size(), 13);
         assertNotNull(subTree);
     }
 }

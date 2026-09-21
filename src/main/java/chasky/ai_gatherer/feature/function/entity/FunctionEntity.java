@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -41,6 +43,7 @@ public class FunctionEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
+    @JsonIgnore
     private FunctionEntity parent;
 
 }
