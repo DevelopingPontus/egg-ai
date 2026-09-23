@@ -23,9 +23,6 @@ public class LmStudioAiConfig implements NodeAiInterface {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  // private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
-  // private final String API_URL = "https://api.openai.com/v1/responses";
-  // private final String model = "gpt-4o";
   private final String OPENAI_API_KEY = "not-needed";
   private final String API_URL = "http://127.0.0.1:1234/v1/chat/completions";
   private final String model = "qwen/qwen3.5-9b";

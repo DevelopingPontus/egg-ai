@@ -26,9 +26,6 @@ public class NodeAiConfig implements NodeAiInterface {
   private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
   private final String API_URL = "https://api.openai.com/v1/responses";
   private final String model = "gpt-4o";
-  // private final String OPENAI_API_KEY = "not-needed";
-  // private final String API_URL = "http://127.0.0.1:1234/v1/responses";
-  // private final String model = "google/gemma-4-e4b";
 
   private String system = "";
   private Float temperature = 0f;

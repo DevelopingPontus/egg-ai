@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Function Tree Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 40px);
+      gap: 20px;
+    }
+
+    .control-panel {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #764ba2;
+    }
+
+    .tree-view {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      flex: 0 0 35%;
+      overflow-y: auto;
+    }
+
+    .tree-canvas {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .tree-level {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tree-node-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #667eea;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 24px;
+      transition: all 0.3s ease;
+      border: 3px solid #667eea;
+      position: relative;
+    }
+
+    .tree-node-circle:hover {
+      background: #764ba2;
+      border-color: #764ba2;
+      transform: scale(1.1);
+    }
+
+    .tree-node-circle.selected {
+      background: #764ba2;
+      border-color: #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+      transform: scale(1.15);
+    }
+
+    .node-label {
+      position: absolute;
+      bottom: -25px;
+      font-size: 11px;
+      color: #333;
+      white-space: nowrap;
+      text-align: center;
+      width: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .details-panel {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+
+    .detail-label {
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .detail-value {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      word-break: break-all;
+    }
+
+    .detail-reasoning {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      overflow-x: auto;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    #loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="control-panel">
+      <input type="text" id="prompt" placeholder="Enter your prompt..." />
+      <button onclick="submitPrompt()">Generate</button>
+      <button onclick="clearAll()">Clear</button>
+      <div id="loading">⏳ Loading...</div>
+    </div>
+
+    <div class="tree-view">
+      <div id="treeContainer" class="tree-canvas">
+        <div class="empty-state">Tree view will appear here</div>
+      </div>
+    </div>
+
+    <div class="details-panel">
+      <div id="detailsContainer" class="empty-state">Select a node to view details</div>
+    </div>
+  </div>
+
+  <script>
+    // Hard-coded test data
+    const TEST_DATA = {
+      name: "Create Promotional Advertisement",
+      id: "func-001",
+      Reasoning: "Main function to create an ad encouraging teachers to order free student literature samples",
+      helperFunctions: [
+        {
+          name: "Analyze Target Audience",
+          id: "func-002",
+          Reasoning: "Identify the demographics and needs of teachers",
+          helperFunctions: []
+        },
+        {
+          name: "Design Ad Copy",
+          id: "func-003",
+          Reasoning: "Write compelling promotional text",
+          helperFunctions: [
+            {
+              name: "Generate Headline",
+              id: "func-004",
+              Reasoning: "Create an attention-grabbing headline",
+              helperFunctions: []
+            },
+            {
+              name: "Generate Call-to-Action",
+              id: "func-005",
+              Reasoning: "Create a persuasive CTA",
+              helperFunctions: []
+            }
+          ]
+        }
+      ]
+    };
+
+    let currentData = TEST_DATA;
+    let selectedId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTree();
+    });
+
+    async function submitPrompt() {
+      const prompt = document.getElementById('prompt').value;
+      if (!prompt.trim()) {
+        alert('Please enter a prompt');
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'block';
+
+      try {
+        const url = `http://localhost:8080/api/v1/functions?prompt=${encodeURIComponent(prompt)}`;
+        const response = await fetch(url, { method: 'POST', body: '' });
+        const data = await response.json();
+        
+        currentData = data;
+        selectedId = null;
+        renderTree();
+        document.getElementById('detailsContainer').innerHTML = '<div class="empty-state">Select a node to view details</div>';
+      } catch (error) {
+        document.getElementById('treeContainer').innerHTML = `<div class="error-message">❌ Error: ${error.message}</div>`;
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('prompt').value = '';
+      document.getElementById('treeContainer').innerHTML = '<div class="empty-state">Tree view will appear here</div>';
+      document.getElementById('detailsContainer').innerHTML = '<div class="empty-state">Select a node to view details</div>';
+      currentData = null;
+      selectedId = null;
+    }
+
+    function renderTree() {
+      const container = document.getElementById('treeContainer');
+      container.innerHTML = '';
+
+      if (!currentData) {
+        container.innerHTML = '<div class="empty-state">Tree view will appear here</div>';
+        return;
+      }
+
+      const levels = getTreeLevels(currentData);
+      levels.forEach(level => {
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'tree-level';
+
+        level.forEach(node => {
+          const nodeCircle = document.createElement('div');
+          nodeCircle.className = 'tree-node-circle';
+          if (selectedId === node.id) {
+            nodeCircle.classList.add('selected');
+          }
+
+          nodeCircle.innerHTML = `
+            ○
+            <div class="node-label">${node.name}</div>
+          `;
+
+          nodeCircle.onclick = () => {
+            selectedId = node.id;
+            renderTree();
+            renderDetails(node);
+          };
+
+          levelDiv.appendChild(nodeCircle);
+        });
+
+        container.appendChild(levelDiv);
+      });
+    }
+
+    function getTreeLevels(node, level = 0, levels = []) {
+      if (!levels[level]) levels[level] = [];
+      levels[level].push(node);
+
+      if (node.helperFunctions && node.helperFunctions.length > 0) {
+        node.helperFunctions.forEach(child => {
+          getTreeLevels(child, level + 1, levels);
+        });
+      }
+
+      return levels;
+    }
+
+    function renderDetails(node) {
+      const container = document.getElementById('detailsContainer');
+      if (!node) {
+        container.innerHTML = '<div class="empty-state">Select a node to view details</div>';
+        return;
+      }
+
+      let html = `
+        <div class="detail-section">
+          <div class="detail-label">📌 Name</div>
+          <div class="detail-value">${node.name || '(unnamed)'}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">🔑 ID</div>
+          <div class="detail-value">${node.id || '(none)'}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">💡 Reasoning</div>
+          <div class="detail-reasoning">${node.Reasoning || '(none)'}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">📄 Full JSON</div>
+          <pre>${JSON.stringify(node, null, 2)}</pre>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
