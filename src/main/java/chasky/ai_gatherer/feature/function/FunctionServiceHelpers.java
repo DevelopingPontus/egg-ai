@@ -90,7 +90,6 @@ public class FunctionServiceHelpers {
                 "You are making plans in the style of java programming. For example, painting might be the function and prepareToPaint might be one of the sub goals. You are tasked with defining the helper functions.");
 
         List<FunctionEntity> helpers = saveHelpersAndSetExistingFunction(parent, response);
-        // helpers = functionRepo.findAllByParent(parent);
         return helpers;
     }
     // Might make a version of FunctionResponse to shorten tokens in response.
