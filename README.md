@@ -52,4 +52,3 @@ I moved on to a new structure based on a programming concept. A usefull strategy
 - Expected input: prompt text
 - Output: JSON object containing a nested `function`
 
-## 
