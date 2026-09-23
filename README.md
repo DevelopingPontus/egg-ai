@@ -10,7 +10,7 @@ This project started with the idea around creating a tool for people with ADHD t
 
 - Ask it about something and it will provide a tree structure of the topic.
 - You can navigate the tree to se what each node is constructed of.
-<img width="1470" height="877" alt="Screenshot 2026-09-23 at 13 43 50" src="https://github.com/user-attachments/assets/eb927037-7c71-4a2f-8ffe-c4817831bc75" />
+<img width="1470" height="873" alt="Screenshot 2026-09-23 at 14 00 54" src="https://github.com/user-attachments/assets/db46a84f-e247-4f77-a2a9-62304309bda6" />
 
 ## The Process
 
