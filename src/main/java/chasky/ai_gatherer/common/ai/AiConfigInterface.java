@@ -5,7 +5,7 @@ import java.net.http.HttpRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-public interface NodeAiInterface {
+public interface AiConfigInterface {
 
     String constructRequestBody(String prompt, String systemPrompt, Class<?> object);
 

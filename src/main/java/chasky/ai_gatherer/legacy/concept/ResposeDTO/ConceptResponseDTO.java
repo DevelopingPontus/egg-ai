@@ -1,18 +1,18 @@
-package chasky.ai_gatherer.legacy.concept.ResposeDTO;
+// package chasky.ai_gatherer.legacy.concept.ResposeDTO;
 
-import java.util.List;
+// import java.util.List;
 
-import jakarta.validation.constraints.NotEmpty;
+// import jakarta.validation.constraints.NotEmpty;
 
-public class ConceptResponseDTO {
-    @NotEmpty
-    public List<ConceptDTO> concepts;
+// public class ConceptResponseDTO {
+//     @NotEmpty
+//     public List<ConceptDTO> concepts;
 
-    public ConceptResponseDTO() {
-    }
+//     public ConceptResponseDTO() {
+//     }
 
-    public ConceptResponseDTO(List<ConceptDTO> concepts) {
-        this.concepts = concepts;
-    }
+//     public ConceptResponseDTO(List<ConceptDTO> concepts) {
+//         this.concepts = concepts;
+//     }
 
-}
+// }

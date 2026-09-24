@@ -3,8 +3,6 @@ package chasky.ai_gatherer.common.ai;
 import java.net.URI;
 import java.net.http.HttpRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import chasky.ai_gatherer.common.util.MyJsonSchemaGeneratorForLmStudio;
 
 @Configuration
-public class LmStudioAiConfig implements NodeAiInterface {
+public class LmStudioAiConfig implements AiConfigInterface {
 
   MyJsonSchemaGeneratorForLmStudio generator = new MyJsonSchemaGeneratorForLmStudio("nodeTree");
 
@@ -27,7 +25,6 @@ public class LmStudioAiConfig implements NodeAiInterface {
   private final String API_URL = "http://127.0.0.1:1234/v1/chat/completions";
   private final String model = "qwen/qwen3.5-9b";
 
-  // private String system = "You are tasked with creating a web/tree of nodes.";
   private Float temperature = 0f;
 
   public LmStudioAiConfig() {
@@ -42,7 +39,6 @@ public class LmStudioAiConfig implements NodeAiInterface {
     if (format == null) {
       format = generator.generateSchema(object);
     }
-    // System.out.println(format);
 
     return String.format("""
             {

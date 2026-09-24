@@ -9,19 +9,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Component;
 
+import chasky.ai_gatherer.common.ai.AiConfigInterface;
 import chasky.ai_gatherer.common.ai.LmStudioAiConfig;
-import chasky.ai_gatherer.common.ai.NodeAiConfig;
-import chasky.ai_gatherer.common.ai.NodeAiInterface;
-import chasky.ai_gatherer.feature.function.dto.FunctionDTO;
 import chasky.ai_gatherer.feature.function.dto.FunctionResponse;
-import chasky.ai_gatherer.feature.function.entity.FunctionEntity;
-import chasky.ai_gatherer.legacy.node.relation.output.NodeRelationsResponse;
-import jakarta.annotation.PostConstruct;
 
 @Component
 public class FunctionAiClient {
 
-    private final NodeAiInterface aiConfig;
+    private final AiConfigInterface aiConfig;
 
     public FunctionAiClient(LmStudioAiConfig aiConfig) {
         this.aiConfig = aiConfig;
