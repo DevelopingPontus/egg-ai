@@ -59,7 +59,7 @@ public class FunctionServiceHelpersTest {
             helperDTOs.add(functionDTO());
         }
         response.setHelperFunctions(helperDTOs);
-        response.setReasoning("RootBecause");
+        // response.setReasoning("RootBecause");
         return response;
     }
 

@@ -23,11 +23,24 @@ public class FunctionServiceHelpers {
     public final FunctionAiClient functionClient;
     public final HelpersAiClient helpersAiClient;
 
+    private final String system = "You are making plans in the style of java programming. For example, painting might be the function and prepareToPaint might be one of the sub goals. You are tasked with defining the helper functions.";
+
+    // private final String system = "You are answering a query by identify the main
+    // goal of the query as a function. Then identify the functions the main
+    // function can be divided into.";
+
+    // private final String system = "You are tasked with making plans by defining
+    // goal and sub goals as programming functions.";
+
     public FunctionServiceHelpers(FunctionRepo functionRepo, FunctionAiClient functionClient,
             HelpersAiClient helpersAiClient) {
         this.functionRepo = functionRepo;
         this.functionClient = functionClient;
         this.helpersAiClient = helpersAiClient;
+    }
+
+    public FunctionResponse promptAi(String prompt) throws IOException, InterruptedException {
+        return functionClient.promptAi(prompt, system);
     }
 
     public FunctionEntity saveFunctionResponseAndReturnParent(FunctionResponse response) {
@@ -82,13 +95,12 @@ public class FunctionServiceHelpers {
         return itterating;
     }
 
+    
     // Expands each helper function of parameter function.
     // Returns list of helper functions as functions with helper functions.
     public List<FunctionEntity> expandOnHelperFunction(FunctionEntity parent)
             throws IOException, InterruptedException {
-        FunctionResponse response = functionClient.promptAi(toDTO(parent).toString(),
-                "You are making plans in the style of java programming. For example, painting might be the function and prepareToPaint might be one of the sub goals. You are tasked with defining the helper functions.");
-
+        FunctionResponse response = functionClient.promptAi(toDTO(parent).toString(), system);
         List<FunctionEntity> helpers = saveHelpersAndSetExistingFunction(parent, response);
         return helpers;
     }
@@ -98,13 +110,12 @@ public class FunctionServiceHelpers {
         List<FunctionEntity> all = functionRepo.fetchSubtree(rootId);
 
         Map<UUID, FunctionEntity> byId = all.stream()
-            .collect(Collectors.toMap(FunctionEntity::getId, n -> n));
+                .collect(Collectors.toMap(FunctionEntity::getId, n -> n));
 
         FunctionEntity root = byId.get(rootId);
-        
+
         return root;
     }
-    
 
     public List<FunctionEntity> toEntities(List<FunctionDTO> DTOs) {
         List<FunctionEntity> entities = new ArrayList<>();

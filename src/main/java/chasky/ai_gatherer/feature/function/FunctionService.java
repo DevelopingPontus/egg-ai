@@ -17,9 +17,7 @@ public class FunctionService {
 
     public FunctionEntity generateNewFunction(String prompt)
             throws IOException, InterruptedException {
-        FunctionResponse response = helpers.functionClient.promptAi(prompt,
-                "You are making plans in the style of java programming. For example, painting might be the function and prepareToPaint might be one of the sub goals. You are tasked with defining the function for the querys goal and it's helper functions.");
-
+        FunctionResponse response = helpers.promptAi(prompt);
         FunctionEntity rootFunction = helpers.saveFunctionResponseAndReturnParent(response);
 
         helpers.itterateToAResponseLayerOf(rootFunction.getHelperFunctions(), 2);

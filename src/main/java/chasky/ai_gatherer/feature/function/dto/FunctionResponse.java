@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class FunctionResponse {
-    private String reasoning;
+    // private String reasoning;
     private FunctionDTO function;
     private List<FunctionDTO> helperFunctions;
 }
