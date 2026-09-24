@@ -1,10 +1,10 @@
-package chasky.ai_gatherer.legacy.category.dto;
+// package chasky.ai_gatherer.legacy.category.dto;
 
-import java.util.List;
+// import java.util.List;
 
-public record CategoryResponse(
-        String goal,
-        CategoryResponse finalStep,
-        List<CategoryResponse> stepsToReachGoal) {
+// public record CategoryResponse(
+//         String goal,
+//         CategoryResponse finalStep,
+//         List<CategoryResponse> stepsToReachGoal) {
 
-}
+// }

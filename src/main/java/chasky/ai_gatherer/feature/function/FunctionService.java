@@ -22,7 +22,7 @@ public class FunctionService {
 
         helpers.itterateToAResponseLayerOf(rootFunction.getHelperFunctions(), 2);
 
-        // rootFunction = helpers.functionRepo.findById(rootFunction.getId()).get();
+        rootFunction = helpers.functionRepo.fetchRoot(rootFunction.getId());
         rootFunction = helpers.getTree(rootFunction.getId());
         return rootFunction;
     }

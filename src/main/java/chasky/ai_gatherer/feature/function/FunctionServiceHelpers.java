@@ -109,6 +109,7 @@ public class FunctionServiceHelpers {
     public FunctionEntity getTree(UUID rootId) {
         List<FunctionEntity> all = functionRepo.fetchSubtree(rootId);
 
+        @SuppressWarnings("null") // As all are fetched from repo they must have Id
         Map<UUID, FunctionEntity> byId = all.stream()
                 .collect(Collectors.toMap(FunctionEntity::getId, n -> n));
 

@@ -1,19 +1,19 @@
-package chasky.ai_gatherer.legacy.concept.ResposeDTO;
+// package chasky.ai_gatherer.legacy.concept.ResposeDTO;
 
-import jakarta.validation.constraints.NotBlank;
+// import jakarta.validation.constraints.NotBlank;
 
-public class ConceptDTO {
-    @NotBlank
-    public String concept;
-    @NotBlank
-    public String explanation;
+// public class ConceptDTO {
+//     @NotBlank
+//     public String concept;
+//     @NotBlank
+//     public String explanation;
 
-    public ConceptDTO() {
-    }
+//     public ConceptDTO() {
+//     }
 
-    public ConceptDTO(String concept, String explanation) {
-        this.concept = concept;
-        this.explanation = explanation;
-    }
+//     public ConceptDTO(String concept, String explanation) {
+//         this.concept = concept;
+//         this.explanation = explanation;
+//     }
 
-}
+// }

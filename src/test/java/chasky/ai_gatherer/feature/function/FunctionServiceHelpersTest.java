@@ -3,7 +3,6 @@ package chasky.ai_gatherer.feature.function;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -162,5 +161,14 @@ public class FunctionServiceHelpersTest {
         List<FunctionEntity> subTree = helpers.functionRepo.fetchSubtree(parent.getId());
         assertEquals(subTree.size(), 13);
         assertNotNull(subTree);
+    }
+
+    @Test 
+    void testFetchRoot() throws IOException, InterruptedException {
+        FunctionEntity parent = helpers.saveFunctionResponseAndReturnParent(functionResponse(numberOfMockHelpers));
+        List<FunctionEntity> leafs = helpers.itterateToAResponseLayerOf(parent.getHelperFunctions(), 1);
+        FunctionEntity rootToLeaf = functionRepo.fetchRoot(leafs.getFirst().getId());
+
+        assertEquals(parent.getId(), rootToLeaf.getId());
     }
 }

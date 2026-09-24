@@ -1,21 +1,21 @@
-package chasky.ai_gatherer.legacy.concept;
+// package chasky.ai_gatherer.legacy.concept;
 
-import java.io.IOException;
+// import java.io.IOException;
 
-import org.springframework.stereotype.Service;
+// import org.springframework.stereotype.Service;
 
-import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
+// import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
 
-@Service
-public class AiService {
-    private final AisClient aisClient;
+// @Service
+// public class AiService {
+//     private final AisClient aisClient;
 
-    public AiService(AisClient aisClient) {
-        this.aisClient = aisClient;
-    }
+//     public AiService(AisClient aisClient) {
+//         this.aisClient = aisClient;
+//     }
     
-    public ConceptResponseDTO promptAi(String prompt) throws IOException, InterruptedException  {
-        return aisClient.promptAi(prompt);
-    }
+//     public ConceptResponseDTO promptAi(String prompt) throws IOException, InterruptedException  {
+//         return aisClient.promptAi(prompt);
+//     }
     
-}
+// }

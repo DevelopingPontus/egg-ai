@@ -1,9 +1,9 @@
-package chasky.ai_gatherer.legacy.node.request;
+// package chasky.ai_gatherer.legacy.node.request;
 
-import jakarta.validation.constraints.Size;
+// import jakarta.validation.constraints.Size;
 
-public record NodeRequest(
-        @Size(max = 400, min = 1)String descriptionOfTopic
-) {
+// public record NodeRequest(
+//         @Size(max = 400, min = 1)String descriptionOfTopic
+// ) {
     
-}
+// }

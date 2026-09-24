@@ -1,97 +1,97 @@
-package chasky.ai_gatherer.legacy.concept;
+// package chasky.ai_gatherer.legacy.concept;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
+// import java.net.URI;
+// import java.net.http.HttpRequest;
 
-import org.springframework.context.annotation.Configuration;
+// import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+// import com.fasterxml.jackson.core.JsonProcessingException;
+// import com.fasterxml.jackson.databind.JsonMappingException;
+// import com.fasterxml.jackson.databind.JsonNode;
+// import com.fasterxml.jackson.databind.ObjectMapper;
 
-import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
+// import chasky.ai_gatherer.legacy.concept.ResposeDTO.ConceptResponseDTO;
 
-@Configuration
-public class AiConfig {
-  private final ObjectMapper objectMapper = new ObjectMapper();
+// @Configuration
+// public class AiConfig {
+//   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
-  private final String API_URL = "https://api.openai.com/v1/responses";
-  private final String system = "You are a university teacher who scientificly explains concepts and how they depend on adjacent concepts.";
-  private final String model = "gpt-4o";
-  private final Float temperature = 0f;
-  private final String format = """
-      {
-                      "format": {
-                        "type": "json_schema",
-                        "name": "concept_response",
-                        "schema": {
-                          "type": "object",
-                          "properties": {
-                            "concepts": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "concept": { "type": "string" },
-                                  "explanation": { "type": "string" }
-                                },
-                                "required": ["concept", "explanation"],
-                                "additionalProperties": false
-                              }
-                            }
-                          },
-                          "required": ["concepts"],
-                          "additionalProperties": false
-                        }
-              """;
+//   private final String OPENAI_API_KEY = System.getenv("OPENAI_API_KEY");
+//   private final String API_URL = "https://api.openai.com/v1/responses";
+//   private final String system = "You are a university teacher who scientificly explains concepts and how they depend on adjacent concepts.";
+//   private final String model = "gpt-4o";
+//   private final Float temperature = 0f;
+//   private final String format = """
+//       {
+//                       "format": {
+//                         "type": "json_schema",
+//                         "name": "concept_response",
+//                         "schema": {
+//                           "type": "object",
+//                           "properties": {
+//                             "concepts": {
+//                               "type": "array",
+//                               "items": {
+//                                 "type": "object",
+//                                 "properties": {
+//                                   "concept": { "type": "string" },
+//                                   "explanation": { "type": "string" }
+//                                 },
+//                                 "required": ["concept", "explanation"],
+//                                 "additionalProperties": false
+//                               }
+//                             }
+//                           },
+//                           "required": ["concepts"],
+//                           "additionalProperties": false
+//                         }
+//               """;
 
-  public String contructRequestBody(String prompt) {
-    return String.format(
-        """
-            {
-              "model": "%s",
-              "input": [
-                {
-                  "role": "system",
-                  "content": "%s"
-                },
-                {
-                  "role": "user",
-                  "content": "%s"
-                }
-              ],
-              "temperature": %s,
-              "text": %s,
-                  "strict": true
-                }
-              }
-            }
-            """,
-        model, system, prompt, temperature, format);
-  }
+//   public String contructRequestBody(String prompt) {
+//     return String.format(
+//         """
+//             {
+//               "model": "%s",
+//               "input": [
+//                 {
+//                   "role": "system",
+//                   "content": "%s"
+//                 },
+//                 {
+//                   "role": "user",
+//                   "content": "%s"
+//                 }
+//               ],
+//               "temperature": %s,
+//               "text": %s,
+//                   "strict": true
+//                 }
+//               }
+//             }
+//             """,
+//         model, system, prompt, temperature, format);
+//   }
 
-  public HttpRequest constructRequest(String requestBody) {
-    return HttpRequest.newBuilder()
-        .uri(URI.create(API_URL))
-        .header("Content-Type", "application/json")
-        .header("Authorization", "Bearer " + OPENAI_API_KEY)
-        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-        .timeout(java.time.Duration.ofSeconds(30))
-        .build();
-  }
+//   public HttpRequest constructRequest(String requestBody) {
+//     return HttpRequest.newBuilder()
+//         .uri(URI.create(API_URL))
+//         .header("Content-Type", "application/json")
+//         .header("Authorization", "Bearer " + OPENAI_API_KEY)
+//         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+//         .timeout(java.time.Duration.ofSeconds(30))
+//         .build();
+//   }
 
-  public ConceptResponseDTO parseResponse(String responseBody) throws JsonMappingException, JsonProcessingException {
-    JsonNode root = objectMapper.readTree(responseBody);
+//   public ConceptResponseDTO parseResponse(String responseBody) throws JsonMappingException, JsonProcessingException {
+//     JsonNode root = objectMapper.readTree(responseBody);
 
-    String text = root.path("output")
-        .get(0)
-        .path("content")
-        .get(0)
-        .path("text")
-        .asText();
+//     String text = root.path("output")
+//         .get(0)
+//         .path("content")
+//         .get(0)
+//         .path("text")
+//         .asText();
 
-    return objectMapper.readValue(text, ConceptResponseDTO.class);
-  }
-}
+//     return objectMapper.readValue(text, ConceptResponseDTO.class);
+//   }
+// }

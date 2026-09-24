@@ -1,8 +1,8 @@
-package chasky.ai_gatherer.legacy.category.dto;
+// package chasky.ai_gatherer.legacy.category.dto;
 
-import jakarta.validation.constraints.Size;
+// import jakarta.validation.constraints.Size;
 
-public record CategoryRequest(
-        @Size(max = 200, min = 1) String descriptionOfCategory) {
+// public record CategoryRequest(
+//         @Size(max = 200, min = 1) String descriptionOfCategory) {
 
-}
+// }

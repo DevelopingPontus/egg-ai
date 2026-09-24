@@ -3,8 +3,6 @@ package chasky.ai_gatherer.common.ai;
 import java.net.URI;
 import java.net.http.HttpRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
