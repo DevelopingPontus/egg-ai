@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import chasky.ai_gatherer.common.util.MyJsonSchemaGeneratorForLmStudio;
 
 @Configuration
-public class LmStudioAiConfig implements NodeAiInterface {
+public class LmStudioAiConfig implements AiConfigInterface {
 
   MyJsonSchemaGeneratorForLmStudio generator = new MyJsonSchemaGeneratorForLmStudio("nodeTree");
 
@@ -39,7 +39,6 @@ public class LmStudioAiConfig implements NodeAiInterface {
     if (format == null) {
       format = generator.generateSchema(object);
     }
-    // System.out.println(format);
 
     return String.format("""
             {

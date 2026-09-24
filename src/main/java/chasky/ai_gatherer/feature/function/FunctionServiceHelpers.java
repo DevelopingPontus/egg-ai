@@ -12,16 +12,14 @@ import org.springframework.stereotype.Component;
 import chasky.ai_gatherer.feature.function.dto.FunctionDTO;
 import chasky.ai_gatherer.feature.function.dto.FunctionResponse;
 import chasky.ai_gatherer.feature.function.entity.FunctionEntity;
-import chasky.ai_gatherer.feature.function.util.FunctionAiClient;
-import chasky.ai_gatherer.feature.function.util.HelpersAiClient;
+import chasky.ai_gatherer.feature.function.util.AiClient;
 
 // The helpers of the service are moved here so they can be public for testing visibility but still working like private functions to service.
 @Component
-public class FunctionServiceHelpers {
+public class FunctionServiceHelpers <T> {
 
     public final FunctionRepo functionRepo;
-    public final FunctionAiClient functionClient;
-    public final HelpersAiClient helpersAiClient;
+    public final AiClient<T> functionClient;
 
     private final String system = "You are making plans in the style of java programming. For example, painting might be the function and prepareToPaint might be one of the sub goals. You are tasked with defining the helper functions.";
 
@@ -32,11 +30,9 @@ public class FunctionServiceHelpers {
     // private final String system = "You are tasked with making plans by defining
     // goal and sub goals as programming functions.";
 
-    public FunctionServiceHelpers(FunctionRepo functionRepo, FunctionAiClient functionClient,
-            HelpersAiClient helpersAiClient) {
+    public FunctionServiceHelpers(FunctionRepo functionRepo, AiClient<T> functionClient) {
         this.functionRepo = functionRepo;
         this.functionClient = functionClient;
-        this.helpersAiClient = helpersAiClient;
     }
 
     public FunctionResponse promptAi(String prompt) throws IOException, InterruptedException {

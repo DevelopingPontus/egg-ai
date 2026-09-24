@@ -5,11 +5,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class MyJsonSchemaGenerator {
+public class MyJsonSchemaGeneratorForOpenAI {
     private final Set<String> visitedClasses = new HashSet<>();
     private final String schemaName;
 
-    public MyJsonSchemaGenerator(String schemaName) {
+    public MyJsonSchemaGeneratorForOpenAI(String schemaName) {
         this.schemaName = schemaName;
     }
 

@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import chasky.ai_gatherer.common.util.MyJsonSchemaGenerator;
+import chasky.ai_gatherer.common.util.MyJsonSchemaGeneratorForOpenAI;
 
 @Configuration
-public class NodeAiConfig implements NodeAiInterface {
+public class OpenAiConfig implements AiConfigInterface {
 
-  MyJsonSchemaGenerator generator = new MyJsonSchemaGenerator("node");
+  MyJsonSchemaGeneratorForOpenAI generator = new MyJsonSchemaGeneratorForOpenAI("node");
 
   private String format;
 
@@ -28,10 +28,10 @@ public class NodeAiConfig implements NodeAiInterface {
   private String system = "";
   private Float temperature = 0f;
 
-  public NodeAiConfig() {
+  public OpenAiConfig() {
   }
 
-  public NodeAiConfig(String system, Float temperature) {
+  public OpenAiConfig(String system, Float temperature) {
     this.system = system;
     this.temperature = temperature;
   }

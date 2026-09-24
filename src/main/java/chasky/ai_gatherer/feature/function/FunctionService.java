@@ -9,9 +9,9 @@ import chasky.ai_gatherer.feature.function.entity.FunctionEntity;
 
 @Service
 public class FunctionService {
-    private final FunctionServiceHelpers helpers;
+    private final FunctionServiceHelpers<FunctionResponse> helpers;
 
-    public FunctionService(FunctionServiceHelpers helpers) {
+    public FunctionService(FunctionServiceHelpers<FunctionResponse> helpers) {
         this.helpers = helpers;
     }
 
@@ -20,7 +20,7 @@ public class FunctionService {
         FunctionResponse response = helpers.promptAi(prompt);
         FunctionEntity rootFunction = helpers.saveFunctionResponseAndReturnParent(response);
 
-        helpers.itterateToAResponseLayerOf(rootFunction.getHelperFunctions(), 2);
+        helpers.itterateToAResponseLayerOf(rootFunction.getHelperFunctions(), 1);
 
         rootFunction = helpers.functionRepo.fetchRoot(rootFunction.getId());
         rootFunction = helpers.getTree(rootFunction.getId());

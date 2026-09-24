@@ -30,7 +30,7 @@ public class FunctionServiceHelpersTest {
     private FunctionAiClient functionClient;
 
     @Autowired
-    private FunctionServiceHelpers helpers;
+    private FunctionServiceHelpers<FunctionResponse> helpers;
 
     @Autowired
     private FunctionRepo functionRepo;
