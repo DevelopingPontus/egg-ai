@@ -2,8 +2,8 @@ package chasky.ai_gatherer.common.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
+// import org.springframework.security.access.AccessDeniedException;
+// import org.springframework.security.core.AuthenticationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -41,24 +41,24 @@ public class GlobalExceptionHandler {
                         request.getRequestURI()));
     }
 
-    // ===== SECURITY ERRORS =====
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(
-            AccessDeniedException ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ErrorResponse.of(403, "ACCESS_DENIED", "You don't have permission to access this resource",
-                        request.getRequestURI()));
-    }
+//     // ===== SECURITY ERRORS =====
+//     @ExceptionHandler(AccessDeniedException.class)
+//     @ResponseStatus(HttpStatus.FORBIDDEN)
+//     public ResponseEntity<ErrorResponse> handleAccessDenied(
+//             AccessDeniedException ex, HttpServletRequest request) {
+//         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                 .body(ErrorResponse.of(403, "ACCESS_DENIED", "You don't have permission to access this resource",
+//                         request.getRequestURI()));
+//     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(
-            AuthenticationException ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorResponse.of(401, "AUTHENTICATION_ERROR", "Invalid credentials or authentication failed",
-                        request.getRequestURI()));
-    }
+//     @ExceptionHandler(AuthenticationException.class)
+//     @ResponseStatus(HttpStatus.UNAUTHORIZED)
+//     public ResponseEntity<ErrorResponse> handleAuthenticationException(
+//             AuthenticationException ex, HttpServletRequest request) {
+//         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                 .body(ErrorResponse.of(401, "AUTHENTICATION_ERROR", "Invalid credentials or authentication failed",
+//                         request.getRequestURI()));
+//     }
 
     // ===== JPA/DATABASE ERRORS =====
     @ExceptionHandler(EntityNotFoundException.class)
